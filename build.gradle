@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'quest.darkoro'
-version = '0.2.3'
+version = '0.4.0'
 
 
 java {
@@ -22,6 +22,9 @@ sourceSets {
 
 repositories {
     mavenCentral()
+    maven {
+        url("https://jitpack.io")
+    }
 }
 
 dependencies {
@@ -35,6 +38,7 @@ dependencies {
     implementation ('net.dv8tion:JDA:5.2.1') {
         exclude module: "opus-java"
     }
+    implementation 'com.github.Ryzeon:discord-html-transcripts:2.1'
     compileOnly 'org.projectlombok:lombok'
     compileOnly 'jakarta.annotation:jakarta.annotation-api:3.0.0'
     runtimeOnly 'com.mysql:mysql-connector-j'

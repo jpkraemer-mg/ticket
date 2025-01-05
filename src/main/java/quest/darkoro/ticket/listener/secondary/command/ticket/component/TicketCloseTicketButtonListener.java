@@ -39,7 +39,14 @@ public class TicketCloseTicketButtonListener extends ListenerAdapter {
           "```DO NOT DELETE NON-DUPLICATE / NON-SUPPORT TICKETS WITHOUT TRANSCRIPT!```").build();
       channel.getMemberPermissionOverrides().forEach(p -> p.delete().queue());
       channel.getManager().setName("closed-%s".formatted(channel.getName())).queue();
-      e.reply("Ticket closed by **%s** and all non-role members removed."
+      e
+          .editMessage(e.getMessage().getContentRaw())
+          .setEmbeds(e.getMessage().getEmbeds())
+          .setActionRow(e.getButton().asDisabled())
+          .queue();
+      e.getChannel()
+          .asTextChannel()
+          .sendMessage("Ticket closed by **%s** and all non-role members removed."
               .formatted(e.getMember().getEffectiveName()))
           .addEmbeds(embed)
           .addActionRow(

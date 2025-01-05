@@ -1,6 +1,7 @@
 package quest.darkoro.ticket.commands;
 
 import static net.dv8tion.jda.api.interactions.commands.OptionType.ROLE;
+import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
 import net.dv8tion.jda.api.Permission;
@@ -18,10 +19,7 @@ public class ConfigureCommand implements BaseCommand {
 
   @Override
   public CommandData create() {
-    return Commands.slash(
-            "configure",
-            "Configure the ticket system"
-        )
+    return Commands.slash("configure", "Configure the ticket system")
         .addSubcommandGroups(
             new SubcommandGroupData("roles", "Default role configuration")
                 .addSubcommands(new SubcommandData(
@@ -31,20 +29,20 @@ public class ConfigureCommand implements BaseCommand {
         )
         .addSubcommandGroups(
             new SubcommandGroupData("category", "Ticket category configuration")
-                .addSubcommands(new SubcommandData(
-                        "add", "Add a ticket category"
+                .addSubcommands(new SubcommandData("add", "Add a ticket category")
+                    .addOptions(
+                        new OptionData(STRING, "name", "Name of the category", true),
+                        new OptionData(STRING, "description", "Description of the category", true),
+                        new OptionData(ROLE, "role1", "Default assigned role for this category",
+                            true),
+                        new OptionData(ROLE, "role2", "Default assigned role for this category"),
+                        new OptionData(ROLE, "role3", "Default assigned role for this category"),
+                        new OptionData(ROLE, "role4", "Default assigned role for this category")
                     )
-                        .addOptions(
-                            new OptionData(STRING, "name", "Name of the category", true),
-                            new OptionData(STRING, "description", "Description of the category", true),
-                            new OptionData(ROLE, "role1", "Default assigned role for this category",
-                                true),
-                            new OptionData(ROLE, "role2", "Default assigned role for this category"),
-                            new OptionData(ROLE, "role3", "Default assigned role for this category"),
-                            new OptionData(ROLE, "role4", "Default assigned role for this category")
-                        )
                 )
         )
+        .addSubcommands(new SubcommandData("transcript", "Configure a transcript channel")
+            .addOption(CHANNEL, "transcript", "Channel to save transcripts in", true))
         .setGuildOnly(true)
         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR,
             Permission.MANAGE_CHANNEL));

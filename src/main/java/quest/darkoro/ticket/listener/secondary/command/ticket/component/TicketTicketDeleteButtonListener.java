@@ -20,7 +20,7 @@ public class TicketTicketDeleteButtonListener extends ListenerAdapter {
     if (e.isAcknowledged() || !e.getButton().getId().equals("ticket_delete")) {
       return;
     }
-    e.reply("Ticket will be deleted in 5 seconds.")
-        .queue(c -> c.getInteraction().getChannel().delete().queueAfter(5, TimeUnit.SECONDS));
+    e.reply("Ticket will be deleted in 15 seconds.")
+        .queue(c -> c.getInteraction().getChannel().delete().queueAfter(15, TimeUnit.SECONDS));
   }
 }
