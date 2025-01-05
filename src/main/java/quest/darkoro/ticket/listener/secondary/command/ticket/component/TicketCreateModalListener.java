@@ -82,8 +82,6 @@ public class TicketCreateModalListener extends ListenerAdapter {
             You can ping a member of staff if there's been no response for 48 hours.
             
             Please submit any additional evidence you may have in case it might be needed to help you!
-            
-            The ticket can be closed by using the command `/ticket close` by you or a staff member.
             """)
             .formatted(cat.getMentions(), e.getMember().getAsMention())
     )

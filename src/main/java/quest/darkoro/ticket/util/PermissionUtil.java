@@ -60,7 +60,7 @@ public class PermissionUtil {
     }
 
     if (!hasPermission) {
-      e.reply("You must have one of the following roles or Administrator permission:\n%s"
+      e.reply("You must have one of the following roles or Administrator permission for this command:\n%s"
               .formatted(sb))
           .setEphemeral(true)
           .queue();
@@ -73,7 +73,7 @@ public class PermissionUtil {
     boolean hasPermission = member.hasPermission(Permission.ADMINISTRATOR);
 
     if (administratorRepository.getAllByGuildId(gid).isEmpty() && !hasPermission) {
-      e.reply("You must be an administrator to use this command.").setEphemeral(true).queue();
+      e.reply("You must be an administrator to use this button.").setEphemeral(true).queue();
       return hasPermission;
     }
 
@@ -92,7 +92,7 @@ public class PermissionUtil {
     }
 
     if (!hasPermission) {
-      e.reply("You must have one of the following roles or Administrator permission:\n%s"
+      e.reply("You must have one of the following roles or Administrator permission for this button:\n%s"
               .formatted(sb))
           .setEphemeral(true)
           .queue();
