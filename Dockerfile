@@ -5,7 +5,6 @@ WORKDIR /app
 COPY build.gradle settings.gradle ./
 COPY gradle ./gradle
 COPY src/ ./src
-COPY api/ ./api
 
 RUN gradle build --stacktrace --no-daemon -i
 
