@@ -50,9 +50,9 @@ public class TicketCreateModalListener extends ListenerAdapter {
             var val = v.getAsString();
             if (val.matches("[123]")) {
               builder.addField("TIER", "```Tier %s```".formatted(val), false);
-            } else if (val.matches("[4-9]")) {
-              builder.addField("TIER", "```Tier 1 - Incorrect Tier %s submitted```".formatted(val),
-                  false);
+            } else if (val.equals("0")) {
+            } else {
+              builder.addField("TIER", "```Tier 1 - Incorrect Tier %s submitted```".formatted(val), false);
             }
           } else {
             builder.addField(v.getId().replaceAll("[\\[\\]\\\\_/\\-]", " ").toUpperCase(),

@@ -35,7 +35,7 @@ public class TicketCreateSelectListener extends ListenerAdapter {
         .build();
 
     TextInput tier = TextInput.create("tier", "Tier of Bug", SHORT)
-        .setPlaceholder("What Tier is this bug? [1 | 2 | 3] - 0 if no bug")
+        .setPlaceholder("What Tier is this bug? [1 | 2 | 3] - KEEP EMPTY IF NO BUG!")
         .setRequired(false)
         .setMaxLength(1)
         .build();
