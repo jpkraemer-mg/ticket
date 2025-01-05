@@ -38,7 +38,6 @@ public class TicketCloseTicketButtonListener extends ListenerAdapter {
       var embed = new EmbedBuilder().setDescription(
           "```DO NOT DELETE NON-DUPLICATE / NON-SUPPORT TICKETS WITHOUT TRANSCRIPT!```").build();
       channel.getMemberPermissionOverrides().forEach(p -> p.delete().queue());
-      channel.getManager().setName("closed-%s".formatted(channel.getName())).queue();
       e
           .editMessage(e.getMessage().getContentRaw())
           .setEmbeds(e.getMessage().getEmbeds())
