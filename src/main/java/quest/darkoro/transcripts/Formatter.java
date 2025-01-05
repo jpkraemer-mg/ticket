@@ -75,7 +75,7 @@ public class Formatter {
             String group = matcher.group();
             newText = newText.replace(group,
                     "<div class=\"pre pre--multiline nohighlight\">"
-                            + group.replace("```", "").substring(3, -3) + "</div>");
+                            + group.replace("```", "") + "</div>");
             findCode = true;
         }
         if (!findCode) {
