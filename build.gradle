@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'quest.darkoro'
+version = '0.1.0'
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs("build/generate-resources/src/main/java", "src/main/java")
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-devtools'
+    implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
+    implementation 'io.swagger.core.v3:swagger-annotations-jakarta:2.2.26'
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation ('net.dv8tion:JDA:5.2.1') {
+        exclude module: "opus-java"
+    }
+    compileOnly 'org.projectlombok:lombok'
+    compileOnly 'jakarta.annotation:jakarta.annotation-api:3.0.0'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.bootRun {
+    args '--spring.profiles.active=dev'
+}
