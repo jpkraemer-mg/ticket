@@ -44,7 +44,7 @@ public class TicketCloseTicketButtonListener extends ListenerAdapter {
           .addEmbeds(embed)
           .addActionRow(
               Button.of(DANGER, "delete_ticket", "DELETE", Emoji.fromUnicode("\uD83D\uDDD1\uFE0F")),
-              Button.of(PRIMARY, "transcript", "DELETE", Emoji.fromUnicode("\uD83D\uDCDD"))
+              Button.of(PRIMARY, "transcript", "TRANSCRIPT", Emoji.fromUnicode("\uD83D\uDCDD"))
           )
           .queue();
     }

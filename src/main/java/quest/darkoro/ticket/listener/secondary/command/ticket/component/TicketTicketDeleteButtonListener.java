@@ -21,7 +21,6 @@ public class TicketTicketDeleteButtonListener extends ListenerAdapter {
       return;
     }
     e.reply("Ticket will be deleted in 5 seconds.")
-        .setActionRow(e.getButton().asDisabled())
         .queue(c -> c.getInteraction().getChannel().delete().queueAfter(5, TimeUnit.SECONDS));
   }
 }
