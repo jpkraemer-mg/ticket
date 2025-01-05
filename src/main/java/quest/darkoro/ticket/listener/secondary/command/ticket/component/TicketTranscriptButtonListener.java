@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.ryzeon.transcripts.DiscordHtmlTranscripts;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.exceptions.MissingAccessException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
@@ -47,6 +48,10 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
     } catch (IOException ex) {
       e.reply("Error while creating transcript from channel '%s'".formatted(channel.getName())).queue();
       log.error("Error while creating transcript from channel '{}'", channel.getName(), ex);
+      return;
+    } catch (MissingAccessException ex) {
+      e.reply("Missing access to transcript channel '%s'".formatted(channel.getName())).queue();
+      log.error("Missing access to transcript channel '{}'", channel.getName(), ex);
       return;
     }
 

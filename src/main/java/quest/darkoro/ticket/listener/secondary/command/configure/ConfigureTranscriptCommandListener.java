@@ -1,10 +1,8 @@
 package quest.darkoro.ticket.listener.secondary.command.configure;
 
-import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.ryzeon.transcripts.DiscordHtmlTranscripts;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
