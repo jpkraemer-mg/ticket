@@ -52,10 +52,10 @@ public class TicketCommand implements BaseCommand {
         .addSubcommands(new SubcommandData("create", "Create a ticket"))
         .addSubcommands(new SubcommandData("rename", "Rename the ticket")
             .addOption(STRING, "new_name", "The new name for the ticket", true))
-        .addSubcommands(new SubcommandData("close", "Close the current ticket"))
+        //.addSubcommands(new SubcommandData("close", "Close the current ticket"))
         .addSubcommands(new SubcommandData("move", "Move the ticket to another category")
             .addOption(CHANNEL, "category", "The category to move this ticket to", true))
-        .addSubcommands(new SubcommandData("delete", "Delete the ticket"))
+        //.addSubcommands(new SubcommandData("delete", "Delete the ticket"))
         .setGuildOnly(true)
         .setDefaultPermissions(ENABLED);
   }

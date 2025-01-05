@@ -1,27 +1,26 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket;
+package quest.darkoro.ticket.listener.secondary.command.ticket.component;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.util.PermissionUtil;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
 @SecondaryListener
-public class TicketDeleteListener extends ListenerAdapter {
+@Slf4j
+@RequiredArgsConstructor
+@Service
+public class TicketDeleteTicketButtonListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
 
   @Override
-  public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getName().equals("ticket") || !"delete".equals(
-        e.getSubcommandName())) {
+  public void onButtonInteraction(@NonNull ButtonInteractionEvent e) {
+    if (e.isAcknowledged() || !e.getButton().getId().equals("delete_ticket")) {
       return;
     }
 
@@ -30,11 +29,6 @@ public class TicketDeleteListener extends ListenerAdapter {
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
     if (isPermitted) {
-      if (!permissionUtil.validCategory(gid, e.getChannel().asTextChannel()
-          .getParentCategoryIdLong())) {
-        e.reply("This channel doesn't seem to be a ticket!").setEphemeral(true).queue();
-        return;
-      }
       e.reply("Are you sure about deleting this ticket?")
           .addActionRow(
               Button.success("ticket_delete", "Confirm"),
@@ -43,5 +37,6 @@ public class TicketDeleteListener extends ListenerAdapter {
           .setEphemeral(true)
           .queue();
     }
+
   }
 }

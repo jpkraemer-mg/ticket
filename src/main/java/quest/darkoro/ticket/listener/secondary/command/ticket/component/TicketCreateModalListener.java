@@ -5,8 +5,11 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.repository.CategoryRepository;
@@ -83,8 +86,12 @@ public class TicketCreateModalListener extends ListenerAdapter {
             The ticket can be closed by using the command `/ticket close` by you or a staff member.
             """)
             .formatted(cat.getMentions(), e.getMember().getAsMention())
-    ).addEmbeds(embed).queue();
-
+    )
+        .addEmbeds(embed)
+        .addActionRow(
+            Button.of(ButtonStyle.DANGER, "close_ticket", "CLOSE", Emoji.fromUnicode("\uD83D\uDD12"))
+        )
+        .queue();
     e.reply("Ticket created").setEphemeral(true).queue();
   }
 }
