@@ -1,11 +1,11 @@
 package quest.darkoro.ticket.listener.secondary.command.ticket.component;
 
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.util.PermissionUtil;
@@ -29,13 +29,8 @@ public class TicketDeleteTicketButtonListener extends ListenerAdapter {
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
     if (isPermitted) {
-      e.reply("Are you sure about deleting this ticket?")
-          .addActionRow(
-              Button.success("ticket_delete", "Confirm"),
-              Button.danger("ticket_no_delete", "Deny")
-          )
-          .setEphemeral(true)
-          .queue();
+      e.reply("Ticket will be deleted in 5 seconds.")
+          .queue(c -> c.getInteraction().getChannel().delete().queueAfter(5, TimeUnit.SECONDS));
     }
 
   }
