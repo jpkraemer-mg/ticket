@@ -4,7 +4,7 @@ import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.ryzeon.transcripts.DiscordHtmlTranscripts;
+import quest.darkoro.transcripts.DiscordHtmlTranscripts;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.MissingAccessException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -44,14 +44,19 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
     var channel = e.getChannel().asTextChannel();
 
     try {
-      transcript.sendFiles(DiscordHtmlTranscripts.getInstance().createTranscript(channel)).queue();
+      transcript.sendFiles(DiscordHtmlTranscripts.getInstance()
+          .createTranscript(channel, "transcript_%s.html".formatted(transcript.getName().toLowerCase())))
+          .queue();
     } catch (IOException ex) {
       e.reply("Error while creating transcript from channel '%s'".formatted(channel.getName())).queue();
       log.error("Error while creating transcript from channel '{}'", channel.getName(), ex);
       return;
     } catch (MissingAccessException ex) {
-      e.reply("Missing access to transcript channel '%s'".formatted(channel.getName())).queue();
-      log.error("Missing access to transcript channel '{}'", channel.getName(), ex);
+      e.reply("Missing access to transcript channel '%s'"
+              .formatted(transcript.getName()))
+          .setEphemeral(true)
+          .queue();
+      log.error("Missing access to transcript channel '{}'", transcript.getName(), ex);
       return;
     }
 

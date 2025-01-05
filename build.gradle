@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'quest.darkoro'
-version = '0.4.1'
+version = '0.5.0'
 
 
 java {
@@ -38,7 +38,7 @@ dependencies {
     implementation ('net.dv8tion:JDA:5.2.1') {
         exclude module: "opus-java"
     }
-    implementation 'com.github.Ryzeon:discord-html-transcripts:2.1'
+    implementation 'org.jsoup:jsoup:1.15.3' // Copy-paste transcripts because they ignore bot messages...
     compileOnly 'org.projectlombok:lombok'
     compileOnly 'jakarta.annotation:jakarta.annotation-api:3.0.0'
     runtimeOnly 'com.mysql:mysql-connector-j'
