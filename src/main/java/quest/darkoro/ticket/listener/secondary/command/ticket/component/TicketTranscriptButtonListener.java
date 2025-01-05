@@ -45,7 +45,7 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
 
     try {
       transcript.sendFiles(DiscordHtmlTranscripts.getInstance()
-          .createTranscript(channel, "transcript_%s.html".formatted(transcript.getName().toLowerCase())))
+          .createTranscript(channel, "transcript_%s.html".formatted(channel.getName().toLowerCase())))
           .queue();
     } catch (IOException ex) {
       e.reply("Error while creating transcript from channel '%s'".formatted(channel.getName())).queue();
