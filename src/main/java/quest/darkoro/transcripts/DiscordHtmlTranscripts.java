@@ -28,6 +28,7 @@ import quest.darkoro.transcripts.utils.format.impl.VideoFormat;
 public class DiscordHtmlTranscripts {
 
   private static DiscordHtmlTranscripts instance;
+  private static final String AVATAR_URL = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png";
   private final IFormatHelper
       imageFormats = new ImageFormat(),
       videoFormats = new VideoFormat(),
@@ -369,7 +370,7 @@ public class DiscordHtmlTranscripts {
       messageGroup.addClass("chatlog__message-group");
 
       // message reference
-      if (message.getReferencedMessage() != null) { // preguntar si es eso
+      if (message.getReferencedMessage() != null) {
         handleMessageReferences(channel, document, message, messageGroup);
       }
 
@@ -387,17 +388,17 @@ public class DiscordHtmlTranscripts {
       authorName.addClass("chatlog__author-name");
 
       if (author != null) {
-        authorName.attr("title", Objects.requireNonNull(author.getGlobalName()));
+        authorName.attr("title", author.getGlobalName() != null ? author.getGlobalName() : "Possibly bot");
         authorName.text(author.getName());
         authorName.attr("data-user-id", author.getId());
-        authorAvatar.attr("src", Objects.requireNonNull(author.getEffectiveAvatarUrl()));
+        authorAvatar.attr("src", author.getEffectiveAvatarUrl());
       } else {
         // Handle the case when author is null (e.g., when the message is from a bot)
         authorName.attr("title", "Bot");
         authorName.text("Bot");
         authorName.attr("data-user-id", "Bot");
         authorAvatar.attr("src",
-            "default_bot_avatar_url"); // replace with your default bot avatar URL
+            AVATAR_URL); // replace with your default bot avatar URL
       }
 
       authorElement.appendChild(authorAvatar);
