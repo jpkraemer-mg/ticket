@@ -28,6 +28,9 @@ jobs:
           echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Change wrapper properties
+        run: chmod +x ./gradlew
+
       - name: Build Application
         run: ./gradlew build
 
