@@ -43,6 +43,8 @@ public class ConfigureCommand implements BaseCommand {
         )
         .addSubcommands(new SubcommandData("transcript", "Configure a transcript channel")
             .addOption(CHANNEL, "transcript", "Channel to save transcripts in", true))
+        .addSubcommands(new SubcommandData("channel", "Configure the ticket message channel")
+            .addOption(CHANNEL, "channel", "Channel from which tickets can be created", true))
         .setGuildOnly(true)
         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR,
             Permission.MANAGE_CHANNEL));

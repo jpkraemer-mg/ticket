@@ -31,7 +31,7 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
 
     var transcriptExist = guildRepository.findById(gid).isPresent();
     if (!transcriptExist) {
-      e.reply("No transcript channel available!\nSet one using `/configure transcript`").setEphemeral(true).queue();
+      e.reply("No configuration available!\nSet one using `/configure transcript`").setEphemeral(true).queue();
       return;
     }
 
@@ -60,6 +60,6 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
       return;
     }
 
-    e.reply("Transcript saved!").setEphemeral(true).queue();
+    e.reply("Transcript saved to %s!".formatted(transcript.getAsMention())).setEphemeral(true).queue();
   }
 }

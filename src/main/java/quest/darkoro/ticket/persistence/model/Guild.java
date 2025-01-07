@@ -17,4 +17,7 @@ public class Guild {
 
   @Column
   private Long transcript;
+
+  @Column
+  private Long base;
 }
