@@ -42,7 +42,7 @@ public class ConfigureChannelListener extends ListenerAdapter {
       }
       var guild = guildRepository.findById(gid).orElse(new Guild());
       guildRepository.save(guild.setId(gid).setBase(channel.getIdLong()));
-      messageUtil.sendTicketMessage(channel.asTextChannel());
+      messageUtil.sendTicketMessage(channel.asTextChannel(), e.getJDA());
       e.reply("Tickets may now be created from %s".formatted(channel.getAsMention())).setEphemeral(true).queue();
     }
 

@@ -20,9 +20,8 @@ import quest.darkoro.ticket.persistence.repository.CategoryRepository;
 public class MessageUtil {
 
   private final CategoryRepository categoryRepository;
-  private final JDA bot;
 
-  public void sendTicketMessage(TextChannel channel) {
+  public void sendTicketMessage(TextChannel channel, JDA bot) {
     channel.getIterableHistory().takeAsync(100).thenAccept(messages -> {
       messages.stream()
           .filter(m -> m.getAuthor().equals(bot.getSelfUser()))
