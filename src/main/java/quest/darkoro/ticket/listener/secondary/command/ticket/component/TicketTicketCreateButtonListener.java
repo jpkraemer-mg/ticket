@@ -20,7 +20,7 @@ public class TicketTicketCreateButtonListener extends ListenerAdapter {
 
   @Override
   public void onButtonInteraction(@NonNull ButtonInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getButton().getId().equals("create_ticket")) {
+    if (e.isAcknowledged() || !e.getButton().getId().equals("ticket_create")) {
       return;
     }
 
