@@ -37,6 +37,10 @@ public class HelpCommandListener extends ListenerAdapter {
             **Follow it up with**:
             - Adding ticket categories (`/configure category add`)
             
+            **When in tickets:**
+            /rename - Change the tickets name to the specified one - Works only in configured categories
+            /move - Move the ticket to the specified category - Works only in configured categories
+            
             **NOTE: ANY USER WITH ADMINISTRATOR PRIVILEGES CAN MANAGE TICKETS!**
             
             **SECOND NOTE: ANY ROLES ASSIGNED TO CATEGORIES ON CREATION WILL GET PINGED ON CREATION OF TICKETS!**
