@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Category;
 import quest.darkoro.ticket.persistence.repository.CategoryRepository;
+import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
@@ -24,6 +26,8 @@ public class ConfigureCategoryAddListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
   private final CategoryRepository categoryRepository;
+  private final MessageUtil messageUtil;
+  private final GuildRepository guildRepository;
 
   @Override
   public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
@@ -74,6 +78,12 @@ public class ConfigureCategoryAddListener extends ListenerAdapter {
           .setMentions(mentions)
       );
       e.reply("Category added with roles\n%s".formatted(mentions)).setEphemeral(true).queue();
+      var g = guildRepository.findById(gid).orElse(null);
+      if (g != null) {
+        if (g.getBase() != null) {
+          messageUtil.sendTicketMessage(guild.getTextChannelById(g.getBase()), e.getJDA());
+        }
+      }
     }
   }
 }

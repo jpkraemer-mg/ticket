@@ -1,7 +1,7 @@
 package quest.darkoro.ticket.commands;
 
-import static net.dv8tion.jda.api.interactions.commands.OptionType.ROLE;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
+import static net.dv8tion.jda.api.interactions.commands.OptionType.ROLE;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
 import net.dv8tion.jda.api.Permission;
@@ -20,13 +20,6 @@ public class ConfigureCommand implements BaseCommand {
   @Override
   public CommandData create() {
     return Commands.slash("configure", "Configure the ticket system")
-        .addSubcommandGroups(
-            new SubcommandGroupData("roles", "Default role configuration")
-                .addSubcommands(new SubcommandData(
-                    "staff", "Configure the staff role to add to all tickets")
-                    .addOption(ROLE, "role", "Staff role", true)
-                )
-        )
         .addSubcommandGroups(
             new SubcommandGroupData("category", "Ticket category configuration")
                 .addSubcommands(new SubcommandData("add", "Add a ticket category")

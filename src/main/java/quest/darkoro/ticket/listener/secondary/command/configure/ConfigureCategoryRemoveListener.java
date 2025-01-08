@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.repository.CategoryRepository;
+import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
@@ -19,6 +21,8 @@ public class ConfigureCategoryRemoveListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
   private final CategoryRepository categoryRepository;
+  private final GuildRepository guildRepository;
+  private final MessageUtil messageUtil;
 
   @Override
   public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
@@ -48,6 +52,12 @@ public class ConfigureCategoryRemoveListener extends ListenerAdapter {
       channel.delete().queue();
       categoryRepository.delete(category);
       e.reply("Category %s removed".formatted(name)).setEphemeral(true).queue();
+      var g = guildRepository.findById(gid).orElse(null);
+      if (g != null) {
+        if (g.getBase() != null) {
+          messageUtil.sendTicketMessage(e.getGuild().getTextChannelById(g.getBase()), e.getJDA());
+        }
+      }
     }
 
   }
