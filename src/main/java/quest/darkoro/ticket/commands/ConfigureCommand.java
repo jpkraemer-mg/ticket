@@ -40,6 +40,8 @@ public class ConfigureCommand implements BaseCommand {
                         new OptionData(ROLE, "role4", "Default assigned role for this category")
                     )
                 )
+                .addSubcommands(new SubcommandData("remove", "Remove a ticket category")
+                    .addOption(CHANNEL, "category", "Category to remove", true))
         )
         .addSubcommands(new SubcommandData("transcript", "Configure a transcript channel")
             .addOption(CHANNEL, "transcript", "Channel to save transcripts in", true))

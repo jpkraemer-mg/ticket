@@ -1,11 +1,12 @@
 package quest.darkoro.ticket.commands;
 
-import static net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions.ENABLED;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.ROLE;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -49,12 +50,11 @@ public class TicketCommand implements BaseCommand {
                     .addOption(ROLE, "role", "Role to remove", true)
             )
         )
-        .addSubcommands(new SubcommandData("create", "Create a ticket"))
         .addSubcommands(new SubcommandData("rename", "Rename the ticket")
             .addOption(STRING, "new_name", "The new name for the ticket", true))
         .addSubcommands(new SubcommandData("move", "Move the ticket to another category")
             .addOption(CHANNEL, "category", "The category to move this ticket to", true))
         .setGuildOnly(true)
-        .setDefaultPermissions(ENABLED);
+        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_ROLES));
   }
 }
