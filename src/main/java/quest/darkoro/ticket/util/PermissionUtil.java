@@ -129,7 +129,9 @@ public class PermissionUtil {
   }
 
   public boolean validCategory(Long gid, Long cid) {
-    return bot.getGuildById(gid).getCategoryById(cid) != null && categoryRepository.findByGuildId(gid).stream()
-        .anyMatch(c -> c.getId().equals(cid));
+
+    return bot.getGuildById(gid).getCategoryById(cid) == null ||
+        (bot.getGuildById(gid).getCategoryById(cid) != null &&
+            categoryRepository.findByGuildId(gid).stream().anyMatch(c -> c.getId().equals(cid)));
   }
 }
