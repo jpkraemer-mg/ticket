@@ -55,7 +55,8 @@ public class TicketCreateModalListener extends ListenerAdapter {
               builder.addField("TIER", "```Tier %s```".formatted(val), false);
             } else if (val.equals("0")) {
             } else {
-              builder.addField("TIER", "```Tier 1 - Incorrect Tier %s submitted```".formatted(val), false);
+              builder.addField("TIER", "```Tier 1 - Incorrect Tier %s submitted```".formatted(val),
+                  false);
             }
           } else {
             builder.addField(v.getId().replaceAll("[\\[\\]\\\\_/\\-]", " ").toUpperCase(),
@@ -77,14 +78,14 @@ public class TicketCreateModalListener extends ListenerAdapter {
         .complete();
     channel.sendMessage(
         ("""
-            ||%s||
-            %s, thank you for opening a ticket! We've been pinged and someone will respond soon.
-            You can ping a member of staff if there's been no response for 48 hours.
-            
-            Please submit any additional evidence you may have in case it might be needed to help you!
-            """)
-            .formatted(cat.getMentions(), e.getMember().getAsMention())
-    )
+        ||%s||
+        %s, thank you for opening a ticket! We've been pinged and someone will respond soon.
+        You can ping a member of staff if there's been no response for 48 hours.
+        
+        Please submit any additional evidence you may have in case it might be needed to help you!
+        """)
+        .formatted(cat.getMentions(), e.getMember().getAsMention())
+      )
         .addEmbeds(embed)
         .addActionRow(
             Button.of(ButtonStyle.DANGER, "close_ticket", "CLOSE", Emoji.fromUnicode("\uD83D\uDD12"))
