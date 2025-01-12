@@ -27,6 +27,6 @@ public class QueryCommandListener extends ListenerAdapter {
       e.reply("Minecraft API did not return any data for username %s".formatted(e.getOption("username").getAsString())).queue();
       return;
     }
-    e.reply("UUID: %s".formatted(profile.get("id").toString())).queue();
+    e.reply("UUID: %s".formatted(dataUtil.fixUUID(profile.get("id").toString()))).queue();
   }
 }

@@ -1,6 +1,7 @@
 package quest.darkoro.ticket.util;
 
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,5 +27,9 @@ public class DataUtil {
       log.error("Failed to fetch profile data for name {}: {}", username, ex.getMessage());
     }
     return null;
+  }
+
+  public String fixUUID(String uuid) {
+    return UUID.fromString(uuid).toString();
   }
 }

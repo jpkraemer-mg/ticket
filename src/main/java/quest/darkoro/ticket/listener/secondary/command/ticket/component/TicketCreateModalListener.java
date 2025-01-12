@@ -47,8 +47,7 @@ public class TicketCreateModalListener extends ListenerAdapter {
             String uuid = null;
             if (profile != null) {
               name = profile.get("name").toString();
-              uuid = profile.get("id").toString();
-              uuid = uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16);
+              uuid = dataUtil.fixUUID(profile.get("id").toString());
             }
             builder.addField("USERNAME",
                 "```%s```".formatted(Objects.requireNonNullElseGet(name, v::getAsString)), false);
