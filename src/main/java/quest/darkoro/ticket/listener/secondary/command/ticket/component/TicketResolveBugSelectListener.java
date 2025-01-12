@@ -32,6 +32,8 @@ public class TicketResolveBugSelectListener extends ListenerAdapter {
     if (isPermitted) {
       var selected = e.getSelectedOptions().get(0).getValue();
 
+      e.getMessage().delete().queue();
+
       switch (selected) {
         case "t0" ->
             e.reply("User won't get pinged, no reward to be given out.").setEphemeral(true).queue();
