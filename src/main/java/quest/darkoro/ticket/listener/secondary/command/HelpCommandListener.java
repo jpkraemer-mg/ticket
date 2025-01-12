@@ -22,12 +22,13 @@ public class HelpCommandListener extends ListenerAdapter {
         """
             /help - This message
             /ticket [user | role] [add | remove] - **Add** or **remove** the specified **user** or **role** to the currently selected ticket
-            /ticket admins add - Add the specified role to ticket administrators, allowing them to:
+            /ticket admins add {role} - Add the specified role to ticket administrators, allowing them to:
             - Rename, move, close, transcribe and delete tickets
             - Add and remove **users** and **roles** to and from tickets
             - Set or change the transcript channel
             - Set or change the ticket create message channel
-            /ticket admins remove - Remove the specified role from ticket administrators
+            /ticket admins remove {role} - Remove the specified role from ticket administrators
+            /query {String: username} - Get the UUID of the specified Minecraft username
             
             **Start by**:
             - Setting the base channel (`/configure channel`)
