@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
@@ -41,7 +42,10 @@ public class TicketCloseTicketButtonListener extends ListenerAdapter {
       e
           .editMessage(e.getMessage().getContentRaw())
           .setEmbeds(e.getMessage().getEmbeds())
-          .setActionRow(e.getButton().asDisabled())
+          .setActionRow(
+              e.getMessage().getButtonById("close_ticket").asDisabled(),
+              e.getMessage().getButtonById("resolve_ticket").asDisabled()
+          )
           .queue();
       e.getChannel()
           .asTextChannel()
