@@ -30,10 +30,10 @@ public class TicketResolveTicketButtonListener extends ListenerAdapter {
 
     if (isPermitted) {
       var menu = StringSelectMenu.create("resolve_bug")
-          .addOption("t0", "Resolved / Other")
-          .addOption("t1", "Tier 1")
-          .addOption("t2", "Tier 2")
-          .addOption("t3", "Tier 3")
+          .addOption("Resolved / Other", "t0")
+          .addOption("Tier 1", "t1")
+          .addOption("Tier 2", "t2")
+          .addOption("Tier 3", "t3")
           .build();
       e.editButton(e.getButton().withDisabled(true)).queue();
       e.getChannel().asTextChannel().sendMessage("").setActionRow(menu).queue();

@@ -29,8 +29,8 @@ public class TicketResolveBugSelectListener extends ListenerAdapter {
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
-    if (!isPermitted) {
-      var selected = e.getSelectedOptions().get(0).getLabel();
+    if (isPermitted) {
+      var selected = e.getSelectedOptions().get(0).getValue();
 
       switch (selected) {
         case "t0" ->
