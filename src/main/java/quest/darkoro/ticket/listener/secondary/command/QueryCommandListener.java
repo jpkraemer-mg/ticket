@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,6 @@ public class QueryCommandListener extends ListenerAdapter {
       e.reply("Minecraft API did not return any data for username %s".formatted(e.getOption("username").getAsString())).queue();
       return;
     }
-    e.reply("UUID: %s".formatted(profile.get("uuid").toString())).queue();
+    e.reply("UUID: %s".formatted(profile.get("id").toString())).queue();
   }
 }
