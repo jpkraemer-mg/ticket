@@ -29,4 +29,7 @@ public class Category {
 
   @JoinColumn(name = "guildId", foreignKey = @ForeignKey(name = "FK_CATEGORY_GUILD", foreignKeyDefinition = "FOREIGN KEY (guild_id) REFERENCES guild(id)"))
   private Long guildId;
+
+  @Column
+  private Integer count = 0;
 }

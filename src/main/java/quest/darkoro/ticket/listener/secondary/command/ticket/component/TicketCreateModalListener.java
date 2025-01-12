@@ -73,6 +73,7 @@ public class TicketCreateModalListener extends ListenerAdapter {
 
     var guild = e.getGuild();
     var cat = categoryRepository.findByNameAndGuildId(selected, guild.getIdLong());
+    categoryRepository.save(cat.setCount(cat.getCount() + 1));
     var category = guild.getCategoryById(cat.getId());
     var channel = guild.createTextChannel("%s".formatted(e.getValue("title").getAsString()),
             category)
@@ -83,13 +84,13 @@ public class TicketCreateModalListener extends ListenerAdapter {
         .complete();
     channel.sendMessage(
         ("""
-        ||%s||
+        ||%s - Ticket %d||
         %s, thank you for opening a ticket! We've been pinged and someone will respond soon.
         You can ping a member of staff if there's been no response for 48 hours.
         
         Please submit any additional evidence you may have in case it might be needed to help you!
         """)
-        .formatted(cat.getMentions(), e.getMember().getAsMention())
+        .formatted(cat.getMentions(), cat.getCount(), e.getMember().getAsMention())
       )
         .addEmbeds(embed)
         .addActionRow(
