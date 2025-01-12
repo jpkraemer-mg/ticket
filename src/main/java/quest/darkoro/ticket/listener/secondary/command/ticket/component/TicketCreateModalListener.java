@@ -12,7 +12,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
+import quest.darkoro.ticket.persistence.model.Ticket;
 import quest.darkoro.ticket.persistence.repository.CategoryRepository;
+import quest.darkoro.ticket.persistence.repository.TicketRepository;
 import quest.darkoro.ticket.util.DataUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
@@ -25,6 +27,7 @@ public class TicketCreateModalListener extends ListenerAdapter {
   private final CategoryRepository categoryRepository;
   private final PermissionUtil permissionUtil;
   private final DataUtil dataUtil;
+  private final TicketRepository ticketRepository;
 
   @Override
   public void onModalInteraction(@NonNull ModalInteractionEvent e) {
@@ -72,8 +75,8 @@ public class TicketCreateModalListener extends ListenerAdapter {
     var embed = builder.build();
 
     var guild = e.getGuild();
+
     var cat = categoryRepository.findByNameAndGuildId(selected, guild.getIdLong());
-    categoryRepository.save(cat.setCount(cat.getCount() + 1));
     var category = guild.getCategoryById(cat.getId());
     var channel = guild.createTextChannel("%s".formatted(e.getValue("title").getAsString()),
             category)
@@ -82,19 +85,30 @@ public class TicketCreateModalListener extends ListenerAdapter {
         .addMemberPermissionOverride(e.getMember().getIdLong(), permissionUtil.getAllow(),
             permissionUtil.getDeny())
         .complete();
+
+    ticketRepository.save(
+        new Ticket()
+            .setCreator(e.getMember().getIdLong())
+            .setTitle(e.getValue("title").getAsString())
+            .setDescription(e.getValue("problem").getAsString())
+            .setGuildId(guild.getIdLong())
+            .setChannel(channel.getIdLong())
+    );
+
     channel.sendMessage(
         ("""
-        ||%s - Ticket %d||
+        ||%s||
         %s, thank you for opening a ticket! We've been pinged and someone will respond soon.
         You can ping a member of staff if there's been no response for 48 hours.
         
         Please submit any additional evidence you may have in case it might be needed to help you!
         """)
-        .formatted(cat.getMentions(), cat.getCount(), e.getMember().getAsMention())
+        .formatted(cat.getMentions(), e.getMember().getAsMention())
       )
         .addEmbeds(embed)
         .addActionRow(
-            Button.of(ButtonStyle.DANGER, "close_ticket", "CLOSE", Emoji.fromUnicode("\uD83D\uDD12"))
+            Button.of(ButtonStyle.DANGER, "close_ticket", "CLOSE", Emoji.fromUnicode("\uD83D\uDD12")),
+            Button.of(ButtonStyle.PRIMARY, "resolve_ticket", "RESOLVE", Emoji.fromUnicode("✨"))
         )
         .queue();
     e.reply("Ticket created").setEphemeral(true).queue();

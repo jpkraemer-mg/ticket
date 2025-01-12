@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import org.springframework.stereotype.Component;
 import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
 import quest.darkoro.ticket.persistence.repository.CategoryRepository;
@@ -93,6 +94,38 @@ public class PermissionUtil {
 
     if (!hasPermission) {
       e.reply("You must have one of the following roles or Administrator permission for this button:\n%s"
+              .formatted(sb))
+          .setEphemeral(true)
+          .queue();
+      return hasPermission;
+    }
+    return hasPermission;
+  }
+
+  public boolean isPermitted(StringSelectInteractionEvent e, Long gid, Member member) {
+    boolean hasPermission = member.hasPermission(Permission.ADMINISTRATOR);
+
+    if (administratorRepository.getAllByGuildId(gid).isEmpty() && !hasPermission) {
+      e.reply("You must be an administrator to use this select menu.").setEphemeral(true).queue();
+      return hasPermission;
+    }
+
+    var adminRoles = administratorRepository.getAllByGuildId(gid);
+    StringBuilder sb = new StringBuilder();
+
+    if (!hasPermission) {
+      for (var adminRole : adminRoles) {
+        var role = e.getGuild().getRoleById(adminRole.getRoleId());
+        sb.append(role.getAsMention()).append("\n");
+        if (member.getRoles().contains(role)) {
+          hasPermission = true;
+          break;
+        }
+      }
+    }
+
+    if (!hasPermission) {
+      e.reply("You must have one of the following roles or Administrator permission for this select menu:\n%s"
               .formatted(sb))
           .setEphemeral(true)
           .queue();
