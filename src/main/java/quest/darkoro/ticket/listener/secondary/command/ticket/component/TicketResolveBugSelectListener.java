@@ -43,7 +43,7 @@ public class TicketResolveBugSelectListener extends ListenerAdapter {
           e.getChannel()
               .asTextChannel()
               .sendMessage("%s, you may choose any one reward from **T1 Bug Report Rewards**"
-                  .formatted(e.getGuild().getMemberById(ticket.getCreator()).getAsMention())
+                  .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete().getAsMention())
               )
               .queue();
         }
@@ -54,7 +54,7 @@ public class TicketResolveBugSelectListener extends ListenerAdapter {
           e.getChannel()
               .asTextChannel()
               .sendMessage("%s, you may choose any one reward from **T1 or T2 Bug Report Rewards**"
-                  .formatted(e.getGuild().getMemberById(ticket.getCreator()).getAsMention())
+                  .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete().getAsMention())
               )
               .queue();
         }
@@ -65,7 +65,7 @@ public class TicketResolveBugSelectListener extends ListenerAdapter {
               .asTextChannel()
               .sendMessage(
                   "%s, you may choose any one reward from **T1, T2 or T3 Bug Report Rewards**"
-                      .formatted(e.getGuild().getMemberById(ticket.getCreator()).getAsMention())
+                      .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete().getAsMention())
               )
               .queue();
         }
