@@ -35,8 +35,8 @@ public class ConfigureChannelRoleCommandListener extends ListenerAdapter {
 
     if (isPermitted) {
       var guild = guildRepository.findById(gid).orElse(new Guild());
-      guildRepository.save(guild.setId(gid).setRole(e.getOption("roles").getAsRole().getIdLong()));
-      e.reply("The channel from which to self-assign roles has been set to %s".formatted(e.getOption("roles").getAsRole().getAsMention())).setEphemeral(true).queue();
+      guildRepository.save(guild.setId(gid).setRole(e.getOption("roles").getAsChannel().getIdLong()));
+      e.reply("The channel from which to self-assign roles has been set to %s".formatted(e.getOption("roles").getAsChannel().getAsMention())).setEphemeral(true).queue();
       messageUtil.sendRoleMessage(e.getOption("roles").getAsChannel().asTextChannel(), e.getJDA());
     }
   }
