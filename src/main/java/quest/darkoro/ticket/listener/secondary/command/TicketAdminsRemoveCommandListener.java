@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
-import quest.darkoro.ticket.persistence.model.Administrator;
 import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
 import quest.darkoro.ticket.util.PermissionUtil;
 
@@ -15,7 +14,7 @@ import quest.darkoro.ticket.util.PermissionUtil;
 @SecondaryListener
 @RequiredArgsConstructor
 @Slf4j
-public class TicketAdminsAddListener extends ListenerAdapter {
+public class TicketAdminsRemoveCommandListener extends ListenerAdapter {
 
   private final AdministratorRepository administratorRepository;
   private final PermissionUtil permissionUtil;
@@ -23,7 +22,7 @@ public class TicketAdminsAddListener extends ListenerAdapter {
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
     if (e.isAcknowledged() || !e.getName().equals("ticket") ||
-        !"admins".equals(e.getSubcommandGroup()) || !"add".equals(e.getSubcommandName())) {
+        !"admins".equals(e.getSubcommandGroup()) || !"remove".equals(e.getSubcommandName())) {
       return;
     }
 
@@ -33,10 +32,9 @@ public class TicketAdminsAddListener extends ListenerAdapter {
 
     if (isPermitted) {
       var role = e.getOption("role").getAsRole();
-      administratorRepository.save(
-          new Administrator().setGuildId(gid).setRoleId(role.getIdLong()).setName(role.getName()));
-      e.reply("Role %s added to ticket admins.".formatted(role.getAsMention())).setEphemeral(true)
-          .queue();
+      administratorRepository.removeByRoleId(role.getIdLong());
+      e.reply("Role %s removed from ticket admins.".formatted(role.getAsMention()))
+          .setEphemeral(true).queue();
     }
   }
 }

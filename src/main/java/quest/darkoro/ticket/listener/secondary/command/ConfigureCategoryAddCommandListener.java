@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.configure;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -22,7 +22,7 @@ import quest.darkoro.ticket.util.PermissionUtil;
 @SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
-public class ConfigureCategoryAddListener extends ListenerAdapter {
+public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
   private final CategoryRepository categoryRepository;

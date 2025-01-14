@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket.component;
+package quest.darkoro.ticket.listener.secondary.component;
 
 import static net.dv8tion.jda.api.interactions.components.text.TextInputStyle.PARAGRAPH;
 import static net.dv8tion.jda.api.interactions.components.text.TextInputStyle.SHORT;

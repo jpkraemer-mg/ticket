@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import static net.dv8tion.jda.api.entities.channel.ChannelType.CATEGORY;
 
@@ -15,7 +15,7 @@ import quest.darkoro.ticket.util.PermissionUtil;
 @Slf4j
 @RequiredArgsConstructor
 @SecondaryListener
-public class TicketMoveListener extends ListenerAdapter {
+public class TicketMoveCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
 

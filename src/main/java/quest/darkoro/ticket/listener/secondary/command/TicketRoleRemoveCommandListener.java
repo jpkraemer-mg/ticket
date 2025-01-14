@@ -1,11 +1,5 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket;
+package quest.darkoro.ticket.listener.secondary.command;
 
-import static net.dv8tion.jda.api.Permission.MESSAGE_HISTORY;
-import static net.dv8tion.jda.api.Permission.MESSAGE_SEND;
-import static net.dv8tion.jda.api.Permission.VIEW_CHANNEL;
-
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -19,14 +13,14 @@ import quest.darkoro.ticket.util.PermissionUtil;
 @SecondaryListener
 @RequiredArgsConstructor
 @Slf4j
-public class TicketRoleAddListener extends ListenerAdapter {
+public class TicketRoleRemoveCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
     if (e.isAcknowledged() || !e.getName().equals("ticket") ||
-        !"role".equals(e.getSubcommandGroup()) || !"add".equals(e.getSubcommandName())) {
+        !"role".equals(e.getSubcommandGroup()) || !"remove".equals(e.getSubcommandName())) {
       return;
     }
 
@@ -44,9 +38,9 @@ public class TicketRoleAddListener extends ListenerAdapter {
       switch (type) {
         case TEXT -> {
           var role = e.getOption("role").getAsRole();
-          e.getChannel().asTextChannel().getManager().putRolePermissionOverride(role.getIdLong(),
-              List.of(MESSAGE_SEND, VIEW_CHANNEL, MESSAGE_HISTORY), new ArrayList<>()).queue();
-          e.reply("Role %s added to ticket".formatted(role.getAsMention())).setEphemeral(true)
+          e.getChannel().asTextChannel().getManager().removePermissionOverride(role.getIdLong())
+              .queue();
+          e.reply("Role %s removed from ticket".formatted(role.getAsMention())).setEphemeral(true)
               .queue();
         }
         default ->

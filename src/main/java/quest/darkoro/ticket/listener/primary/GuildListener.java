@@ -26,8 +26,15 @@ public class GuildListener extends ListenerAdapter {
   public void onGuildReady(@NotNull GuildReadyEvent e) {
     registerCommands(e.getGuild());
     var guild = guildRepository.findById(e.getGuild().getIdLong());
-    if (guild.isPresent() && guild.get().getBase() != null) {
-      messageUtil.sendTicketMessage(e.getGuild().getTextChannelById(guild.get().getBase()), e.getJDA());
+    if (guild.isPresent()) {
+      if (guild.get().getBase() != null) {
+        messageUtil.sendTicketMessage(e.getGuild().getTextChannelById(guild.get().getBase()),
+            e.getJDA());
+      }
+      if (guild.get().getRole() != null) {
+        messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guild.get().getRole()),
+            e.getJDA());
+      }
     }
   }
 

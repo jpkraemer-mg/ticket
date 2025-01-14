@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket.component;
+package quest.darkoro.ticket.listener.secondary.component;
 
 import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.DANGER;
 import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.PRIMARY;
@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;

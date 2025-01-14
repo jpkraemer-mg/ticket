@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import static net.dv8tion.jda.api.Permission.MESSAGE_HISTORY;
 import static net.dv8tion.jda.api.Permission.MESSAGE_SEND;
@@ -19,14 +19,14 @@ import quest.darkoro.ticket.util.PermissionUtil;
 @SecondaryListener
 @RequiredArgsConstructor
 @Slf4j
-public class TicketUserAddListener extends ListenerAdapter {
+public class TicketRoleAddCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
     if (e.isAcknowledged() || !e.getName().equals("ticket") ||
-        !"user".equals(e.getSubcommandGroup()) || !"add".equals(e.getSubcommandName())) {
+        !"role".equals(e.getSubcommandGroup()) || !"add".equals(e.getSubcommandName())) {
       return;
     }
 
@@ -43,10 +43,10 @@ public class TicketUserAddListener extends ListenerAdapter {
       var type = e.getChannel().getType();
       switch (type) {
         case TEXT -> {
-          var user = e.getOption("user").getAsMember();
-          e.getChannel().asTextChannel().getManager().putMemberPermissionOverride(user.getIdLong(),
+          var role = e.getOption("role").getAsRole();
+          e.getChannel().asTextChannel().getManager().putRolePermissionOverride(role.getIdLong(),
               List.of(MESSAGE_SEND, VIEW_CHANNEL, MESSAGE_HISTORY), new ArrayList<>()).queue();
-          e.reply("User %s added to ticket".formatted(user.getAsMention())).setEphemeral(true)
+          e.reply("Role %s added to ticket".formatted(role.getAsMention())).setEphemeral(true)
               .queue();
         }
         default ->

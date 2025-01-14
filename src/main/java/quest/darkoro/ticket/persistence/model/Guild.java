@@ -20,4 +20,7 @@ public class Guild {
 
   @Column
   private Long base;
+
+  @Column
+  private Long role;
 }

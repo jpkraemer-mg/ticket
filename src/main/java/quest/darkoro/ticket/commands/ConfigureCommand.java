@@ -26,8 +26,7 @@ public class ConfigureCommand implements BaseCommand {
                     .addOptions(
                         new OptionData(STRING, "name", "Name of the category", true),
                         new OptionData(STRING, "description", "Description of the category", true),
-                        new OptionData(ROLE, "role1", "Default assigned role for this category",
-                            true),
+                        new OptionData(ROLE, "role1", "Default assigned role for this category", true),
                         new OptionData(ROLE, "role2", "Default assigned role for this category"),
                         new OptionData(ROLE, "role3", "Default assigned role for this category"),
                         new OptionData(ROLE, "role4", "Default assigned role for this category")
@@ -36,10 +35,18 @@ public class ConfigureCommand implements BaseCommand {
                 .addSubcommands(new SubcommandData("remove", "Remove a ticket category")
                     .addOption(CHANNEL, "category", "Category to remove", true))
         )
-        .addSubcommands(new SubcommandData("transcript", "Configure a transcript channel")
-            .addOption(CHANNEL, "transcript", "Channel to save transcripts in", true))
-        .addSubcommands(new SubcommandData("channel", "Configure the ticket message channel")
-            .addOption(CHANNEL, "channel", "Channel from which tickets can be created", true))
+        .addSubcommandGroups(new SubcommandGroupData("channel", "Configure different channels")
+            .addSubcommands(new SubcommandData("ticket", "Channel from which to create tickets")
+              .addOption(CHANNEL, "channel", "Channel to create tickets in", true))
+            .addSubcommands(new SubcommandData("transcript", "Configure a transcript channel")
+                .addOption(CHANNEL, "transcript", "Channel to save transcripts in", true))
+            .addSubcommands(new SubcommandData("roles", "Configure the self-assignable roles channel")
+                .addOption(CHANNEL, "roles", "Channel to self-assign roles from", true))
+        )
+        .addSubcommandGroups(new SubcommandGroupData("selfrole", "Self-assignable role configuration")
+            .addSubcommands(new SubcommandData("add", "Add a self-assignable role"))
+            .addSubcommands(new SubcommandData("remove", "Remove a self-assignable role"))
+        )
         .setGuildOnly(true)
         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR,
             Permission.MANAGE_CHANNEL));

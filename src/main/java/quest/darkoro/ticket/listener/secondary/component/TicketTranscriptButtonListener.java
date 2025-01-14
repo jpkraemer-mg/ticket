@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket.component;
+package quest.darkoro.ticket.listener.secondary.component;
 
 import java.io.IOException;
 import lombok.NonNull;

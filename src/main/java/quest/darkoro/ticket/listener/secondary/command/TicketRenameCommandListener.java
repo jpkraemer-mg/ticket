@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import quest.darkoro.ticket.util.PermissionUtil;
 @SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
-public class TicketRenameListener extends ListenerAdapter {
+public class TicketRenameCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
 

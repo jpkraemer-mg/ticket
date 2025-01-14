@@ -1,10 +1,6 @@
 package quest.darkoro.ticket.configuration;
 
 import static net.dv8tion.jda.api.entities.Activity.watching;
-import static net.dv8tion.jda.api.requests.GatewayIntent.ALL_INTENTS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.MESSAGE_CONTENT;
 
 import java.util.EnumSet;
 import lombok.RequiredArgsConstructor;

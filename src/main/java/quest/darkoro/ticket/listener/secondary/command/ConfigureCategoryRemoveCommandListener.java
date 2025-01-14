@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.configure;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import quest.darkoro.ticket.util.PermissionUtil;
 @SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
-public class ConfigureCategoryRemoveListener extends ListenerAdapter {
+public class ConfigureCategoryRemoveCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
   private final CategoryRepository categoryRepository;

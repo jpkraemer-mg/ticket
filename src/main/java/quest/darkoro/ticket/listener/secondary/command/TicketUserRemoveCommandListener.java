@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.secondary.command.ticket;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,14 +13,14 @@ import quest.darkoro.ticket.util.PermissionUtil;
 @SecondaryListener
 @RequiredArgsConstructor
 @Slf4j
-public class TicketRoleRemoveListener extends ListenerAdapter {
+public class TicketUserRemoveCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
     if (e.isAcknowledged() || !e.getName().equals("ticket") ||
-        !"role".equals(e.getSubcommandGroup()) || !"remove".equals(e.getSubcommandName())) {
+        !"user".equals(e.getSubcommandGroup()) || !"remove".equals(e.getSubcommandName())) {
       return;
     }
 
@@ -37,10 +37,10 @@ public class TicketRoleRemoveListener extends ListenerAdapter {
       var type = e.getChannel().getType();
       switch (type) {
         case TEXT -> {
-          var role = e.getOption("role").getAsRole();
-          e.getChannel().asTextChannel().getManager().removePermissionOverride(role.getIdLong())
+          var user = e.getOption("user").getAsMember();
+          e.getChannel().asTextChannel().getManager().removePermissionOverride(user.getIdLong())
               .queue();
-          e.reply("Role %s removed from ticket".formatted(role.getAsMention())).setEphemeral(true)
+          e.reply("User %s removed from ticket".formatted(user.getAsMention())).setEphemeral(true)
               .queue();
         }
         default ->
