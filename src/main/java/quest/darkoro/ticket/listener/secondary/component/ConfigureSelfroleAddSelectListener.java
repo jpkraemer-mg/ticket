@@ -10,7 +10,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Selfrole;
+import quest.darkoro.ticket.persistence.repository.GuildRepository;
 import quest.darkoro.ticket.persistence.repository.SelfroleRepository;
+import quest.darkoro.ticket.util.MessageUtil;
 
 @Service
 @SecondaryListener
@@ -19,6 +21,8 @@ import quest.darkoro.ticket.persistence.repository.SelfroleRepository;
 public class ConfigureSelfroleAddSelectListener extends ListenerAdapter {
 
   private final SelfroleRepository selfroleRepository;
+  private final MessageUtil messageUtil;
+  private final GuildRepository guildRepository;
 
   @Override
   public void onEntitySelectInteraction(@NonNull EntitySelectInteractionEvent e) {
@@ -46,5 +50,6 @@ public class ConfigureSelfroleAddSelectListener extends ListenerAdapter {
         .toList();
 
     e.reply("Added the following roles to self-assignable roles:\n%s".formatted(String.join("\n", added))).setEphemeral(true).queue();
+    messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guildRepository.findById(gid).get().getRole()), e.getJDA());
   }
 }
