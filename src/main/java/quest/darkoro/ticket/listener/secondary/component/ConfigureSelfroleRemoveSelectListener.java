@@ -22,7 +22,7 @@ public class ConfigureSelfroleRemoveSelectListener extends ListenerAdapter {
 
   @Override
   public void onEntitySelectInteraction(@NonNull EntitySelectInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getId().equals("selfrole_remove")) {
+    if (e.isAcknowledged() || !e.getComponentId().equals("selfrole_remove")) {
       return;
     }
 

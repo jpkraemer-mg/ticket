@@ -34,6 +34,8 @@ public class ConfigureSelfroleAddCommandListener extends ListenerAdapter {
     if (isPermitted) {
       var menu = EntitySelectMenu.create("selfrole_add", ROLE)
           .setPlaceholder("Select roles to be self-assignable")
+          .setMinValues(1)
+          .setMaxValues(10)
           .build();
       e.reply("")
           .setActionRow(menu)
