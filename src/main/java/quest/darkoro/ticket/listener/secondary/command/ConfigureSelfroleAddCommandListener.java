@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
+import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
@@ -19,6 +21,8 @@ import quest.darkoro.ticket.util.PermissionUtil;
 public class ConfigureSelfroleAddCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
+  private final MessageUtil messageUtil;
+  private final GuildRepository guildRepository;
 
   @Override
   public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
@@ -41,6 +45,7 @@ public class ConfigureSelfroleAddCommandListener extends ListenerAdapter {
           .setActionRow(menu)
           .setEphemeral(true)
           .queue();
+      messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guildRepository.findById(gid).get().getRole()), e.getJDA());
     }
   }
 }
