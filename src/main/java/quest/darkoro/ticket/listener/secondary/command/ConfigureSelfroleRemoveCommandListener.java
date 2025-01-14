@@ -34,6 +34,8 @@ public class ConfigureSelfroleRemoveCommandListener extends ListenerAdapter {
     if (isPermitted) {
       var menu = EntitySelectMenu.create("selfrole_remove", ROLE)
           .setPlaceholder("Select roles that should no longer be self-assignable")
+          .setMinValues(1)
+          .setMaxValues(10)
           .build();
       e.reply("")
           .setActionRow(menu)

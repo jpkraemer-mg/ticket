@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -34,7 +35,7 @@ public class BotConfiguration {
         .setMemberCachePolicy(MemberCachePolicy.DEFAULT)
         .enableCache(CacheFlag.MEMBER_OVERRIDES)
         .setAutoReconnect(true)
-        .setActivity(watching(" all tickets..."))
+        .setActivity(Activity.customStatus("Supporting BRs since 1999"))
         .addEventListeners(botReadyListener, guildListener)
         .build();
   }
