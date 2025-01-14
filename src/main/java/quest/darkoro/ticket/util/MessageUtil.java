@@ -44,6 +44,9 @@ public class MessageUtil {
     channel.getIterableHistory().takeAsync(50).thenAccept(messages -> {
       var tasks = messages.stream()
           .filter(m -> m.getAuthor().equals(bot.getSelfUser()))
+          .filter(m -> !m.getEmbeds().isEmpty() && m.getEmbeds().stream()
+              .anyMatch(e -> "Support tickets".equals(e.getTitle()))
+          )
           .map(m -> m.delete().submit())
           .toList();
 
@@ -67,9 +70,9 @@ public class MessageUtil {
   public void sendRoleMessage(TextChannel channel, JDA bot) {
     var roles = selfroleRepository.findByGuildId(channel.getGuild().getIdLong());
     var embed = new EmbedBuilder()
-        .setTitle("Support roles")
+        .setTitle("Self-assignable roles")
         .setDescription(
-            "This is a list of all support roles available on the server.\nTo apply a role, use the button below.")
+            "This is a list of all self-assignable roles available on the server.\nTo apply a role, use the buttons below.")
         .setColor(Color.GREEN)
         .setFooter("DB0S Ticket & Support System - %s roles available".formatted(roles.size()))
         .build();
@@ -77,6 +80,9 @@ public class MessageUtil {
     channel.getIterableHistory().takeAsync(50).thenAccept(messages -> {
       var tasks = messages.stream()
           .filter(m -> m.getAuthor().equals(bot.getSelfUser()))
+          .filter(m -> !m.getEmbeds().isEmpty() && m.getEmbeds().stream()
+              .anyMatch(e -> "Self-assignable roles".equals(e.getTitle()))
+          )
           .map(m -> m.delete().submit())
           .toList();
 
