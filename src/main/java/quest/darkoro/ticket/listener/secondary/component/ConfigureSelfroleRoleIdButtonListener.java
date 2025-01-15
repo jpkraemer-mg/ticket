@@ -33,6 +33,6 @@ public class ConfigureSelfroleRoleIdButtonListener extends ListenerAdapter {
     } else {
       e.getGuild().addRoleToMember(e.getMember(), role).queue();
     }
-    e.reply("Role " + role.getAsMention() + " has been " + (e.getMember().getRoles().contains(role) ? "added" : "removed") + "!").setEphemeral(true).queue();
+    e.reply("Role " + role.getAsMention() + " has been " + (!e.getMember().getRoles().contains(role) ? "added" : "removed") + "!").setEphemeral(true).queue();
   }
 }
