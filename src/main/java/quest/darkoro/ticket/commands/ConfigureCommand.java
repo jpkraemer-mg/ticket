@@ -42,6 +42,8 @@ public class ConfigureCommand implements BaseCommand {
                 .addOption(CHANNEL, "transcript", "Channel to save transcripts in", true))
             .addSubcommands(new SubcommandData("roles", "Configure the self-assignable roles channel")
                 .addOption(CHANNEL, "roles", "Channel to self-assign roles from", true))
+            .addSubcommands(new SubcommandData("log", "Configure the log channel for all relevant commands")
+                .addOption(CHANNEL, "log", "Channel to log commands to", true))
         )
         .addSubcommandGroups(new SubcommandGroupData("selfrole", "Self-assignable role configuration")
             .addSubcommands(new SubcommandData("add", "Add a self-assignable role"))

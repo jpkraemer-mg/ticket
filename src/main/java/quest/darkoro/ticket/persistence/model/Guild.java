@@ -23,4 +23,7 @@ public class Guild {
 
   @Column
   private Long role;
+
+  @Column
+  private Long log;
 }
