@@ -97,7 +97,7 @@ public class MessageUtil {
           var buttons = new ArrayList<Button>();
           for (var v : valid) {
             var color = colors.get(valid.indexOf(v) % colors.size());
-            buttons.add(Button.of(color, "role_" + v.getId(), v.getName()));
+            buttons.add(Button.of(color, "selfrole_" + v.getId(), v.getName()));
             if (buttons.size() == 5) {
               msg.addActionRow(buttons);
               buttons.clear();
