@@ -46,8 +46,7 @@ public class TicketUserAddCommandListener extends ListenerAdapter {
           var user = e.getOption("user").getAsMember();
           e.getChannel().asTextChannel().getManager().putMemberPermissionOverride(user.getIdLong(),
               List.of(MESSAGE_SEND, VIEW_CHANNEL, MESSAGE_HISTORY), new ArrayList<>()).queue();
-          e.reply("User %s added to ticket".formatted(user.getAsMention())).setEphemeral(true)
-              .queue();
+          e.reply("User %s added to ticket by %s (%s)".formatted(user.getAsMention(), e.getMember().getEffectiveName(), e.getMember().getIdLong())).queue();
         }
         default ->
             e.reply("This command can only be used in a text channel").setEphemeral(true).queue();

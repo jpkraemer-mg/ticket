@@ -44,7 +44,7 @@ public class TicketMoveCommandListener extends ListenerAdapter {
         return;
       }
       manager.setParent(category.asCategory()).queue();
-      e.reply("Ticket moved to %s".formatted(category.getName())).setEphemeral(true).queue();
+      e.reply("Ticket moved to %s by %s (%s)".formatted(category.getName(), e.getMember().getEffectiveName(), e.getMember().getIdLong())).queue();
     }
   }
 }

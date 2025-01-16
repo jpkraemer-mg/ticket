@@ -46,8 +46,7 @@ public class TicketRoleAddCommandListener extends ListenerAdapter {
           var role = e.getOption("role").getAsRole();
           e.getChannel().asTextChannel().getManager().putRolePermissionOverride(role.getIdLong(),
               List.of(MESSAGE_SEND, VIEW_CHANNEL, MESSAGE_HISTORY), new ArrayList<>()).queue();
-          e.reply("Role %s added to ticket".formatted(role.getAsMention())).setEphemeral(true)
-              .queue();
+          e.reply("Role %s added to ticket by %s (%s)".formatted(role.getAsMention(), e.getMember().getEffectiveName(), e.getMember().getIdLong())).queue();
         }
         default ->
             e.reply("This command can only be used in a text channel").setEphemeral(true).queue();

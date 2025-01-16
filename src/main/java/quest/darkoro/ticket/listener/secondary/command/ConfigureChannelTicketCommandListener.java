@@ -44,6 +44,15 @@ public class ConfigureChannelTicketCommandListener extends ListenerAdapter {
       guildRepository.save(guild.setId(gid).setBase(channel.getIdLong()));
       messageUtil.sendTicketMessage(channel.asTextChannel(), e.getJDA());
       e.reply("Tickets may now be created from %s".formatted(channel.getAsMention())).setEphemeral(true).queue();
+      if (guild.getLog() != null) {
+        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCONFIGURE TICKET MESSAGE CHANNEL: `%s (%s)`".formatted(
+            "/configure channel transcript",
+            e.getMember().getEffectiveName(),
+            e.getMember().getIdLong(),
+            channel.getName(),
+            channel.getId()), e.getGuild().getTextChannelById(guild.getLog())
+        );
+      }
     }
 
   }

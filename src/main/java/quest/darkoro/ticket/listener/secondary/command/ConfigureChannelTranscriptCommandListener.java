@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Guild;
 import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
@@ -20,6 +21,7 @@ public class ConfigureChannelTranscriptCommandListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
   private final GuildRepository guildRepository;
+  private final MessageUtil messageUtil;
 
   @Override
   public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
@@ -41,6 +43,15 @@ public class ConfigureChannelTranscriptCommandListener extends ListenerAdapter {
       var guild = guildRepository.findById(gid).orElse(new Guild());
       guildRepository.save(guild.setId(gid).setTranscript(channel.getIdLong()));
       e.reply("Transcript channel set to %s".formatted(channel.getAsMention())).setEphemeral(true).queue();
+      if (guild.getLog() != null) {
+        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCONFIGURE TRANSCRIPT CHANNEL: `%s (%s)`".formatted(
+            "/configure channel role",
+            e.getMember().getEffectiveName(),
+            e.getMember().getIdLong(),
+            channel.getName(),
+            channel.getId()), e.getGuild().getTextChannelById(guild.getLog())
+        );
+      }
     }
   }
 }

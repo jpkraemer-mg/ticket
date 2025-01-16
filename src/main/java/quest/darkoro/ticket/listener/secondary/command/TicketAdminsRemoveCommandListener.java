@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
+import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
@@ -18,6 +20,8 @@ public class TicketAdminsRemoveCommandListener extends ListenerAdapter {
 
   private final AdministratorRepository administratorRepository;
   private final PermissionUtil permissionUtil;
+  private final GuildRepository guildRepository;
+  private final MessageUtil messageUtil;
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
@@ -35,6 +39,20 @@ public class TicketAdminsRemoveCommandListener extends ListenerAdapter {
       administratorRepository.removeByRoleId(role.getIdLong());
       e.reply("Role %s removed from ticket admins.".formatted(role.getAsMention()))
           .setEphemeral(true).queue();
+
+      var guild = guildRepository.findById(gid).orElse(null);
+      if (guild != null) {
+        if (guild.getLog() != null) {
+          messageUtil.sendLogMessage(
+              "Command `%s` executed by `%s (%s)`\nREMOVE TICKET ADMIN: `%s (%s)`".formatted(
+                  "/configure channel role",
+                  e.getMember().getEffectiveName(),
+                  e.getMember().getIdLong(),
+                  role.getName(),
+                  role.getId()), e.getGuild().getTextChannelById(guild.getLog())
+          );
+        }
+      }
     }
   }
 }

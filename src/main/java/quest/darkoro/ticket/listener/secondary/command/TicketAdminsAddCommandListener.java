@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Administrator;
 import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
+import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
@@ -19,6 +21,8 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
 
   private final AdministratorRepository administratorRepository;
   private final PermissionUtil permissionUtil;
+  private final GuildRepository guildRepository;
+  private final MessageUtil messageUtil;
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
@@ -37,6 +41,20 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
           new Administrator().setGuildId(gid).setRoleId(role.getIdLong()).setName(role.getName()));
       e.reply("Role %s added to ticket admins.".formatted(role.getAsMention())).setEphemeral(true)
           .queue();
+
+      var guild = guildRepository.findById(gid).orElse(null);
+      if (guild != null) {
+        if (guild.getLog() != null) {
+          messageUtil.sendLogMessage(
+              "Command `%s` executed by `%s (%s)`\nADD TICKET ADMIN: `%s (%s)`".formatted(
+                  "/configure channel role",
+                  e.getMember().getEffectiveName(),
+                  e.getMember().getIdLong(),
+                  role.getName(),
+                  role.getId()), e.getGuild().getTextChannelById(guild.getLog())
+          );
+        }
+      }
     }
   }
 }

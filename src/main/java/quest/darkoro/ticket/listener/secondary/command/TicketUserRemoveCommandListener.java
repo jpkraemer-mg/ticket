@@ -40,8 +40,7 @@ public class TicketUserRemoveCommandListener extends ListenerAdapter {
           var user = e.getOption("user").getAsMember();
           e.getChannel().asTextChannel().getManager().removePermissionOverride(user.getIdLong())
               .queue();
-          e.reply("User %s removed from ticket".formatted(user.getAsMention())).setEphemeral(true)
-              .queue();
+          e.reply("User %s removed from ticket by %s (%s)".formatted(user.getAsMention(), e.getMember().getEffectiveName(), e.getMember().getIdLong())).queue();
         }
         default ->
             e.reply("This command can only be used in a text channel").setEphemeral(true).queue();

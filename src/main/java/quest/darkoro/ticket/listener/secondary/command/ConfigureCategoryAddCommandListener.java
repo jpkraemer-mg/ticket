@@ -93,7 +93,7 @@ public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
               e.getMember().getIdLong(),
               completeCategory.getName(),
               completeCategory.getIdLong(),
-              roles.stream().map(Role::getName).collect(Collectors.joining(", "))
+              !roles.isEmpty() ? roles.stream().map(Role::getName).collect(Collectors.joining(", ")) : "No roles assigned to category"
           ), guild.getTextChannelById(g.getLog()));
         }
       }
