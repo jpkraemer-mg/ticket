@@ -45,7 +45,7 @@ public class TicketAdminsRemoveCommandListener extends ListenerAdapter {
         if (guild.getLog() != null) {
           messageUtil.sendLogMessage(
               "Command `%s` executed by `%s (%s)`\nREMOVE TICKET ADMIN: `%s (%s)`".formatted(
-                  "/configure channel role",
+                  "/ticket admins remove",
                   e.getMember().getEffectiveName(),
                   e.getMember().getIdLong(),
                   role.getName(),

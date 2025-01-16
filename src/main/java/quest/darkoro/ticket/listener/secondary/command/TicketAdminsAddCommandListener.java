@@ -47,7 +47,7 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
         if (guild.getLog() != null) {
           messageUtil.sendLogMessage(
               "Command `%s` executed by `%s (%s)`\nADD TICKET ADMIN: `%s (%s)`".formatted(
-                  "/configure channel role",
+                  "/ticket admins add",
                   e.getMember().getEffectiveName(),
                   e.getMember().getIdLong(),
                   role.getName(),

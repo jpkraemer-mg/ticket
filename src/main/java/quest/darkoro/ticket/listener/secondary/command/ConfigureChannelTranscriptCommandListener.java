@@ -45,7 +45,7 @@ public class ConfigureChannelTranscriptCommandListener extends ListenerAdapter {
       e.reply("Transcript channel set to %s".formatted(channel.getAsMention())).setEphemeral(true).queue();
       if (guild.getLog() != null) {
         messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCONFIGURE TRANSCRIPT CHANNEL: `%s (%s)`".formatted(
-            "/configure channel role",
+            "/configure channel transcript",
             e.getMember().getEffectiveName(),
             e.getMember().getIdLong(),
             channel.getName(),
