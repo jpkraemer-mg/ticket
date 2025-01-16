@@ -4,6 +4,7 @@ import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import quest.darkoro.transcripts.DiscordHtmlTranscripts;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.MissingAccessException;
@@ -35,8 +36,15 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
       return;
     }
 
-    var transcript = guild.getTextChannelById(guildRepository.findById(gid).get().getTranscript());
-    if (transcript == null) {
+    TextChannel transcript;
+    var g = guildRepository.findById(gid).orElse(null);
+    if (g != null && g.getTranscript() != null) {
+      transcript = guild.getTextChannelById(guildRepository.findById(gid).get().getTranscript());
+      if (transcript == null) {
+        e.reply("Transcript channel not found!").setEphemeral(true).queue();
+        return;
+      }
+    } else {
       e.reply("Transcript channel not found!").setEphemeral(true).queue();
       return;
     }
