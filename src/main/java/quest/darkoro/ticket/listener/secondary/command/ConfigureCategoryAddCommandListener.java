@@ -7,6 +7,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -70,8 +71,10 @@ public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
       category.addRolePermissionOverride(guild.getPublicRole().getIdLong(), null,
           permissionUtil.getDeny());
 
+      var completeCategory = category.complete();
+
       categoryRepository.save(new Category()
-          .setId(category.complete().getIdLong())
+          .setId(completeCategory.getIdLong())
           .setDescription(e.getOption("description").getAsString())
           .setGuildId(gid)
           .setName(e.getOption("name").getAsString())
@@ -82,6 +85,16 @@ public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
       if (g != null) {
         if (g.getBase() != null) {
           messageUtil.sendTicketMessage(guild.getTextChannelById(g.getBase()), e.getJDA());
+        }
+        if (g.getLog() != null) {
+          messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCATEGORY CREATE `%s (%s)`\n`%s`".formatted(
+              "/configure category add",
+              e.getMember().getEffectiveName(),
+              e.getMember().getIdLong(),
+              completeCategory.getName(),
+              completeCategory.getIdLong(),
+              roles.stream().map(Role::getName).collect(Collectors.joining(", "))
+          ), guild.getTextChannelById(g.getLog()));
         }
       }
     }

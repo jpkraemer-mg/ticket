@@ -37,6 +37,15 @@ public class ConfigureSelfroleRemoveSelectListener extends ListenerAdapter {
         .map(Selfrole::getRoleId)
         .collect(Collectors.toSet());
 
+    var roles = e.getValues()
+        .stream()
+        .filter(r -> r instanceof Role)
+        .map(r -> (Role) r)
+        .filter(r -> !r.isPublicRole())
+        .filter(r -> existing.contains(r.getIdLong()))
+        .map(Role::getName)
+        .toList();
+
     var removed = e.getValues()
         .stream()
         .filter(r -> r instanceof Role)
@@ -49,6 +58,19 @@ public class ConfigureSelfroleRemoveSelectListener extends ListenerAdapter {
 
     e.reply("Removed the following roles from self-assignable roles:\n%s".formatted(
         String.join("\n", removed))).setEphemeral(true).queue();
-    messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guildRepository.findById(gid).get().getRole()), e.getJDA());
+    var guild = guildRepository.findById(gid).orElse(null);
+    if (guild != null) {
+      if (guild.getRole() != null) {
+        messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guild.getRole()), e.getJDA());
+      }
+      if (guild.getLog() != null) {
+        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) REMOVE `%s".formatted(
+            "/configure selfrole remove",
+            e.getMember().getEffectiveName(),
+            e.getMember().getIdLong(),
+            roles
+        ), e.getGuild().getTextChannelById(guild.getLog()));
+      }
+    }
   }
 }

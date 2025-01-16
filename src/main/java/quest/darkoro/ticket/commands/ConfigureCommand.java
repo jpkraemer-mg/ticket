@@ -26,7 +26,7 @@ public class ConfigureCommand implements BaseCommand {
                     .addOptions(
                         new OptionData(STRING, "name", "Name of the category", true),
                         new OptionData(STRING, "description", "Description of the category", true),
-                        new OptionData(ROLE, "role1", "Default assigned role for this category", true),
+                        new OptionData(ROLE, "role1", "Default assigned role for this category"),
                         new OptionData(ROLE, "role2", "Default assigned role for this category"),
                         new OptionData(ROLE, "role3", "Default assigned role for this category"),
                         new OptionData(ROLE, "role4", "Default assigned role for this category")

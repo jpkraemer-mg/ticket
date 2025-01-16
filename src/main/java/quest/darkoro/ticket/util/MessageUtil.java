@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.stereotype.Component;
 import quest.darkoro.ticket.persistence.repository.CategoryRepository;
+import quest.darkoro.ticket.persistence.repository.GuildRepository;
 import quest.darkoro.ticket.persistence.repository.SelfroleRepository;
 
 @Component
@@ -30,6 +31,7 @@ public class MessageUtil {
 
   private final CategoryRepository categoryRepository;
   private final SelfroleRepository selfroleRepository;
+  private final GuildRepository guildRepository;
 
   public void sendTicketMessage(TextChannel channel, JDA bot) {
     var embed = new EmbedBuilder()
@@ -113,6 +115,10 @@ public class MessageUtil {
         }
       });
     });
+  }
+
+  public void sendLogMessage(String message, TextChannel channel) {
+    channel.sendMessage(message).queue();
   }
 
 }
