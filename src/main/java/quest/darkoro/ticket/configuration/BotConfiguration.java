@@ -33,7 +33,7 @@ public class BotConfiguration {
     return JDABuilder.createLight(token, EnumSet.allOf(GatewayIntent.class))
         .setChunkingFilter(ChunkingFilter.ALL)
         .setMemberCachePolicy(MemberCachePolicy.DEFAULT)
-        .enableCache(CacheFlag.MEMBER_OVERRIDES)
+        .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.ROLE_TAGS)
         .setAutoReconnect(true)
         .setActivity(Activity.customStatus("Supporting BRs since 1999"))
         .addEventListeners(botReadyListener, guildListener)
