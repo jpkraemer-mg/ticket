@@ -65,7 +65,7 @@ public class ConfigureSelfroleAddSelectListener extends ListenerAdapter {
         messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guild.getRole()), e.getJDA());
       }
       if (guild.getLog() != null) {
-        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) ADD `%s".formatted(
+        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) ADD `%s`".formatted(
             "/configure selfrole add",
             e.getMember().getEffectiveName(),
             e.getMember().getIdLong(),

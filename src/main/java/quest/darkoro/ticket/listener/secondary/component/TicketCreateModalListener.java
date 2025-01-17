@@ -35,6 +35,8 @@ public class TicketCreateModalListener extends ListenerAdapter {
       return;
     }
 
+    e.deferReply(true).queue();
+
     var selected = e.getModalId().substring(e.getModalId().lastIndexOf("_") + 1).toUpperCase();
 
     var builder = new EmbedBuilder().setTitle(selected);
@@ -111,6 +113,6 @@ public class TicketCreateModalListener extends ListenerAdapter {
             Button.of(ButtonStyle.PRIMARY, "resolve_ticket", "RESOLVE", Emoji.fromUnicode("✨"))
         )
         .queue();
-    e.reply("Ticket created").setEphemeral(true).queue();
+    e.getHook().sendMessage("Ticket created").queue();
   }
 }

@@ -64,7 +64,7 @@ public class ConfigureSelfroleRemoveSelectListener extends ListenerAdapter {
         messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guild.getRole()), e.getJDA());
       }
       if (guild.getLog() != null) {
-        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) REMOVE `%s".formatted(
+        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) REMOVE `%s`".formatted(
             "/configure selfrole remove",
             e.getMember().getEffectiveName(),
             e.getMember().getIdLong(),

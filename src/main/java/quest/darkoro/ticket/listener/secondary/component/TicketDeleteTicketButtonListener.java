@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
+import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @SecondaryListener
@@ -17,6 +19,8 @@ import quest.darkoro.ticket.util.PermissionUtil;
 public class TicketDeleteTicketButtonListener extends ListenerAdapter {
 
   private final PermissionUtil permissionUtil;
+  private final GuildRepository guildRepository;
+  private final MessageUtil messageUtil;
 
   @Override
   public void onButtonInteraction(@NonNull ButtonInteractionEvent e) {
@@ -29,8 +33,24 @@ public class TicketDeleteTicketButtonListener extends ListenerAdapter {
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
     if (isPermitted) {
+      var channel = e.getInteraction().getChannel();
       e.reply("Ticket will be deleted in 5 seconds.")
           .queue(c -> c.getInteraction().getChannel().delete().queueAfter(5, TimeUnit.SECONDS));
+
+      var guild = guildRepository.findById(gid).orElse(null);
+      if (guild != null) {
+        if (guild.getLog() != null) {
+          messageUtil.sendLogMessage(
+              "Ticket deleted - `%s (%s)`\nDeleted by `%s (%s)`".formatted(
+                  channel.getName(),
+                  channel.getIdLong(),
+                  e.getMember().getEffectiveName(),
+                  e.getMember().getIdLong()
+              ), e.getGuild().getTextChannelById(guild.getLog())
+          );
+        }
+      }
+
     }
 
   }
