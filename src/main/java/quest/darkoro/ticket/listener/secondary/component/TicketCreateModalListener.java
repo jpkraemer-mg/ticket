@@ -99,7 +99,7 @@ public class TicketCreateModalListener extends ListenerAdapter {
 
     channel.sendMessage(
         ("""
-        ||%s||
+        || %s ||
         %s, thank you for opening a ticket! We've been pinged and someone will respond soon.
         You can ping a member of staff if there's been no response for 48 hours.
         
