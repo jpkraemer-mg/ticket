@@ -43,6 +43,7 @@ public class ConfigureSelfroleRemoveSelectListener extends ListenerAdapter {
         .map(r -> (Role) r)
         .filter(r -> !r.isPublicRole())
         .filter(r -> existing.contains(r.getIdLong()))
+        .filter(r -> e.getGuild().getSelfMember().canInteract(r))
         .map(Role::getName)
         .toList();
 
@@ -52,6 +53,7 @@ public class ConfigureSelfroleRemoveSelectListener extends ListenerAdapter {
         .map(r -> (Role) r)
         .filter(r -> !r.isPublicRole())
         .filter(r -> existing.contains(r.getIdLong()))
+        .filter(r -> e.getGuild().getSelfMember().canInteract(r))
         .peek(r -> selfroleRepository.deleteByGuildIdAndRoleId(gid, r.getIdLong()))
         .map(Role::getAsMention)
         .toList();
