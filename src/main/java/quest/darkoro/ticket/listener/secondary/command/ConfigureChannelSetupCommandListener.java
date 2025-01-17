@@ -36,12 +36,13 @@ public class ConfigureChannelSetupCommandListener extends ListenerAdapter {
       return;
     }
 
+    e.deferReply(true).queue();
+
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
     if (isPermitted) {
-      var guild = e.getGuild();
       var g = guildRepository.findById(gid).orElse(new Guild());
       var setupCategory = e.getOption("category").getAsChannel();
       if (setupCategory.getType() != CATEGORY) {
@@ -72,6 +73,7 @@ public class ConfigureChannelSetupCommandListener extends ListenerAdapter {
       messageUtil.sendTicketMessage(ticketDone, e.getJDA());
       messageUtil.sendRoleMessage(selfRolesDone, e.getJDA());
       messageUtil.sendLogMessage("Channel setup executed by `%s (%s)`".formatted(member.getEffectiveName(), member.getIdLong()), logDone);
+      e.getHook().sendMessage("Channel setup complete!").queue();
     }
   }
 }
