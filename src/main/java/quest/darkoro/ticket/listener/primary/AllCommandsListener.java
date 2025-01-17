@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
+import quest.darkoro.ticket.annotations.PrimaryListener;
 
 @Service
-@SecondaryListener
+@PrimaryListener
 @Slf4j
 @RequiredArgsConstructor
 public class AllCommandsListener extends ListenerAdapter {
