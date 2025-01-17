@@ -67,8 +67,8 @@ public class ConfigureChannelSetupCommandListener extends ListenerAdapter {
       var ticketDone = ticket.complete();
       var transcriptDone = transcript.complete();
       var selfRolesDone = selfRoles.complete();
-      g.setBase(ticketDone.getIdLong()).setLog(logDone.getIdLong()).setRole(
-          selfRolesDone.getIdLong()).setTranscript(transcriptDone.getIdLong());
+      guildRepository.save(g.setBase(ticketDone.getIdLong()).setLog(logDone.getIdLong()).setRole(
+          selfRolesDone.getIdLong()).setTranscript(transcriptDone.getIdLong()));
       messageUtil.sendTicketMessage(ticketDone, e.getJDA());
       messageUtil.sendRoleMessage(selfRolesDone, e.getJDA());
       messageUtil.sendLogMessage("Channel setup executed by `%s (%s)`".formatted(member.getEffectiveName(), member.getIdLong()), logDone);
