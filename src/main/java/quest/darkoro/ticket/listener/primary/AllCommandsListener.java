@@ -19,7 +19,7 @@ public class AllCommandsListener extends ListenerAdapter {
     if (e.isAcknowledged()) {
       return;
     }
-    if (e.getGuild() != null) {
+    if (e.getGuild() == null) {
       e.reply("This command may only be used in a guild!").setEphemeral(true).queue();
     }
   }
