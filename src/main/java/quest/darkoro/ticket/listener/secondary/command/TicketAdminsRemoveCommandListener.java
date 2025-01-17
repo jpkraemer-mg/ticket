@@ -46,8 +46,8 @@ public class TicketAdminsRemoveCommandListener extends ListenerAdapter {
           messageUtil.sendLogMessage(
               "Command `%s` executed by `%s (%s)`\nREMOVE TICKET ADMIN: `%s (%s)`".formatted(
                   "/ticket admins remove",
-                  e.getMember().getEffectiveName(),
-                  e.getMember().getIdLong(),
+                  member.getEffectiveName(),
+                  member.getIdLong(),
                   role.getName(),
                   role.getId()), e.getGuild().getTextChannelById(guild.getLog())
           );

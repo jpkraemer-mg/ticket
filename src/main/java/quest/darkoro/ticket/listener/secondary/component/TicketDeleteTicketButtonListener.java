@@ -44,8 +44,8 @@ public class TicketDeleteTicketButtonListener extends ListenerAdapter {
               "Ticket deleted - `%s (%s)`\nDeleted by `%s (%s)`".formatted(
                   channel.getName(),
                   channel.getIdLong(),
-                  e.getMember().getEffectiveName(),
-                  e.getMember().getIdLong()
+                  member.getEffectiveName(),
+                  member.getIdLong()
               ), e.getGuild().getTextChannelById(guild.getLog())
           );
         }

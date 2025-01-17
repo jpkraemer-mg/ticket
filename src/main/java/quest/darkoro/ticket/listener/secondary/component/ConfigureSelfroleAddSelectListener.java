@@ -31,6 +31,7 @@ public class ConfigureSelfroleAddSelectListener extends ListenerAdapter {
     }
 
     var gid = e.getGuild().getIdLong();
+    var member = e.getMember();
     var existing = selfroleRepository
         .findByGuildId(gid)
         .stream()
@@ -69,8 +70,8 @@ public class ConfigureSelfroleAddSelectListener extends ListenerAdapter {
       if (guild.getLog() != null) {
         messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) ADD `%s`".formatted(
             "/configure selfrole add",
-            e.getMember().getEffectiveName(),
-            e.getMember().getIdLong(),
+            member.getEffectiveName(),
+            member.getIdLong(),
             roles
         ), e.getGuild().getTextChannelById(guild.getLog()));
       }

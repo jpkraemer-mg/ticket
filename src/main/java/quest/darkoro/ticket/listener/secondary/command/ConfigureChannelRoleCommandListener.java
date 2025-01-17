@@ -49,8 +49,8 @@ public class ConfigureChannelRoleCommandListener extends ListenerAdapter {
       if (guild.getLog() != null) {
         messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCONFIGURE SELF-ASSIGNABLE ROLE CHANNEL: `%s (%s)`".formatted(
             "/configure channel role",
-            e.getMember().getEffectiveName(),
-            e.getMember().getIdLong(),
+            member.getEffectiveName(),
+            member.getIdLong(),
             channel.getName(),
             channel.getId()), e.getGuild().getTextChannelById(guild.getLog())
         );

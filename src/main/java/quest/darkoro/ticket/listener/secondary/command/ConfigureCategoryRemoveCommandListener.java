@@ -60,8 +60,8 @@ public class ConfigureCategoryRemoveCommandListener extends ListenerAdapter {
         if (g.getLog() != null) {
           messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCATEGORY REMOVE: `%s (%s)`".formatted(
               "/configure category remove",
-              e.getMember().getEffectiveName(),
-              e.getMember().getIdLong(),
+              member.getEffectiveName(),
+              member.getIdLong(),
               name,
               category.getId()), e.getGuild().getTextChannelById(g.getLog())
           );

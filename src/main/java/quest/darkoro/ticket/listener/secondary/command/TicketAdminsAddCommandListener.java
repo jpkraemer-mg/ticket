@@ -48,8 +48,8 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
           messageUtil.sendLogMessage(
               "Command `%s` executed by `%s (%s)`\nADD TICKET ADMIN: `%s (%s)`".formatted(
                   "/ticket admins add",
-                  e.getMember().getEffectiveName(),
-                  e.getMember().getIdLong(),
+                  member.getEffectiveName(),
+                  member.getIdLong(),
                   role.getName(),
                   role.getId()), e.getGuild().getTextChannelById(guild.getLog())
           );

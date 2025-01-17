@@ -31,10 +31,13 @@ public class HelpCommandListener extends ListenerAdapter {
             /query {String: username} - Get the UUID of the specified Minecraft username
             
             **Start by**:
+            - Setting up the necessary channels (`/configure channel setup`)
+            **OR**
             - Setting the base channel (`/configure channel ticket`)
             - Setting the log channel (`/configure channel log`)
             - Setting the transcript channel (`/configure channel transcript`)
             - Setting the self-assignable roles channel (`/configure channel roles`)
+            **AND**
             - Adding ticket administrators (`/ticket admins add`)
             
             **Follow it up with**:

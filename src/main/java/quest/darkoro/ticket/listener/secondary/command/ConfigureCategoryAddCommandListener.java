@@ -63,13 +63,9 @@ public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
       }
 
       var category = guild.createCategory(e.getOption("name").getAsString());
-      roles.forEach(
-          r -> category.addRolePermissionOverride(r.getIdLong(), permissionUtil.getAllow(),
-              permissionUtil.getDeny()));
-      category.addRolePermissionOverride(guild.getSelfMember().getRoles().get(0).getIdLong(),
-          permissionUtil.getBotPermissions(), null);
-      category.addRolePermissionOverride(guild.getPublicRole().getIdLong(), null,
-          permissionUtil.getDeny());
+      roles.forEach(r -> category.addRolePermissionOverride(r.getIdLong(), permissionUtil.getAllow(), permissionUtil.getDeny()));
+      category.addRolePermissionOverride(guild.getBotRole().getIdLong(), permissionUtil.getBotPermissions(), null);
+      category.addRolePermissionOverride(guild.getPublicRole().getIdLong(), null, permissionUtil.getDeny());
 
       var completeCategory = category.complete();
 
@@ -89,8 +85,8 @@ public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
         if (g.getLog() != null) {
           messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCATEGORY CREATE `%s (%s)`\n`%s`".formatted(
               "/configure category add",
-              e.getMember().getEffectiveName(),
-              e.getMember().getIdLong(),
+              member.getEffectiveName(),
+              member.getIdLong(),
               completeCategory.getName(),
               completeCategory.getIdLong(),
               !roles.isEmpty() ? roles.stream().map(Role::getName).collect(Collectors.joining(", ")) : "No roles assigned to category"

@@ -49,7 +49,7 @@ public class TicketCloseTicketButtonListener extends ListenerAdapter {
       e.getChannel()
           .asTextChannel()
           .sendMessage("Ticket closed by **%s** and all non-role members removed."
-              .formatted(e.getMember().getEffectiveName()))
+              .formatted(member.getEffectiveName()))
           .addEmbeds(embed)
           .addActionRow(
               Button.of(DANGER, "delete_ticket", "DELETE", Emoji.fromUnicode("\uD83D\uDDD1\uFE0F")),
