@@ -25,7 +25,7 @@ public class Ticket {
   @Column
   private String title;
 
-  @Column
+  @Column(length = 820)
   private String description;
 
   @Column

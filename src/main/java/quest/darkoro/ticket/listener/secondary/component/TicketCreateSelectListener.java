@@ -51,6 +51,7 @@ public class TicketCreateSelectListener extends ListenerAdapter {
         .setPlaceholder(
             "Please describe your problem as precisely as possible so that we can best help you.")
         .setRequired(true)
+        .setMaxLength(800)
         .build();
 
     Modal modal = Modal.create("ticket_create%s".formatted("_" + selected.toLowerCase()),
