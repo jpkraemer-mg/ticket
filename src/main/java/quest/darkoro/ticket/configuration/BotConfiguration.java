@@ -1,6 +1,11 @@
 package quest.darkoro.ticket.configuration;
 
 import static net.dv8tion.jda.api.entities.Activity.watching;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
+import static net.dv8tion.jda.api.requests.GatewayIntent.MESSAGE_CONTENT;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.MEMBER_OVERRIDES;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.ROLE_TAGS;
 
 import java.util.EnumSet;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +35,10 @@ public class BotConfiguration {
 
   @Bean
   public JDA bot() {
-    return JDABuilder.createLight(token, EnumSet.allOf(GatewayIntent.class))
+    return JDABuilder.createDefault(token)
         .setChunkingFilter(ChunkingFilter.ALL)
-        .setMemberCachePolicy(MemberCachePolicy.DEFAULT)
-        .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.ROLE_TAGS)
+        .enableIntents(EnumSet.of(GUILD_MEMBERS, MESSAGE_CONTENT, GUILD_PRESENCES))
+        .enableCache(MEMBER_OVERRIDES, ROLE_TAGS)
         .setAutoReconnect(true)
         .setActivity(Activity.customStatus("Supporting BRs since 1999"))
         .addEventListeners(botReadyListener, guildListener)
