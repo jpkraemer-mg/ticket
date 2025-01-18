@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
+import quest.darkoro.ticket.persistence.repository.CategoryRepository;
 import quest.darkoro.ticket.persistence.repository.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
@@ -22,6 +23,7 @@ public class TicketAdminsRemoveCommandListener extends ListenerAdapter {
   private final PermissionUtil permissionUtil;
   private final GuildRepository guildRepository;
   private final MessageUtil messageUtil;
+  private final CategoryRepository categoryRepository;
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
@@ -36,11 +38,20 @@ public class TicketAdminsRemoveCommandListener extends ListenerAdapter {
 
     if (isPermitted) {
       var role = e.getOption("role").getAsRole();
+      if (role.equals(e.getGuild().getBotRole())) {
+        e.reply("Removing the bot role from ticket administrators is not supported!").setEphemeral(true).queue();
+        return;
+      }
       administratorRepository.removeByRoleId(role.getIdLong());
       e.reply("Role %s removed from ticket admins.".formatted(role.getAsMention()))
           .setEphemeral(true).queue();
 
       var guild = guildRepository.findById(gid).orElse(null);
+      categoryRepository.findByGuildId(gid).forEach(c -> {
+        var category = e.getGuild().getCategoryById(c.getId());
+        category.getTextChannels().forEach(t -> t.getManager().removePermissionOverride(role).queue());
+        category.getManager().removePermissionOverride(role).queue();
+      });
       if (guild != null) {
         if (guild.getLog() != null) {
           messageUtil.sendLogMessage(

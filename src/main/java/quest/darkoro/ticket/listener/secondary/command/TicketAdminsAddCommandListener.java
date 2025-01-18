@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Administrator;
 import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
+import quest.darkoro.ticket.persistence.repository.CategoryRepository;
 import quest.darkoro.ticket.persistence.repository.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
@@ -23,6 +24,7 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
   private final PermissionUtil permissionUtil;
   private final GuildRepository guildRepository;
   private final MessageUtil messageUtil;
+  private final CategoryRepository categoryRepository;
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
@@ -43,6 +45,11 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
           .queue();
 
       var guild = guildRepository.findById(gid).orElse(null);
+      categoryRepository.findByGuildId(gid).forEach(c -> {
+        var category = e.getGuild().getCategoryById(c.getId());
+        category.getTextChannels().forEach(t -> t.getManager().putRolePermissionOverride(role.getIdLong(), permissionUtil.getAllow(), null).queue());
+        category.getManager().putRolePermissionOverride(role.getIdLong(), permissionUtil.getAllow(), null).queue();
+      });
       if (guild != null) {
         if (guild.getLog() != null) {
           messageUtil.sendLogMessage(
