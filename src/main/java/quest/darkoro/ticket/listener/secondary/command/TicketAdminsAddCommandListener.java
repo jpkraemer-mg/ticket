@@ -47,8 +47,8 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
       var guild = guildRepository.findById(gid).orElse(null);
       categoryRepository.findByGuildId(gid).forEach(c -> {
         var category = e.getGuild().getCategoryById(c.getId());
-        category.getTextChannels().forEach(t -> t.getManager().putRolePermissionOverride(role.getIdLong(), permissionUtil.getAllow(), null).queue());
-        category.getManager().putRolePermissionOverride(role.getIdLong(), permissionUtil.getAllow(), null).queue();
+        category.getTextChannels().forEach(t -> t.getManager().putRolePermissionOverride(role.getIdLong(), permissionUtil.getAllow(), permissionUtil.getFilteredDeny()).queue());
+        category.getManager().putRolePermissionOverride(role.getIdLong(), permissionUtil.getAllow(), permissionUtil.getFilteredDeny()).queue();
       });
       if (guild != null) {
         if (guild.getLog() != null) {

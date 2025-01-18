@@ -45,7 +45,7 @@ public class TicketRoleAddCommandListener extends ListenerAdapter {
         case TEXT -> {
           var role = e.getOption("role").getAsRole();
           e.getChannel().asTextChannel().getManager().putRolePermissionOverride(role.getIdLong(),
-              List.of(MESSAGE_SEND, VIEW_CHANNEL, MESSAGE_HISTORY), new ArrayList<>()).queue();
+              permissionUtil.getAllow(), permissionUtil.getFilteredDeny()).queue();
           e.reply("Role %s added to ticket by %s (%s)".formatted(role.getAsMention(), member.getEffectiveName(), member.getIdLong())).queue();
         }
         default ->

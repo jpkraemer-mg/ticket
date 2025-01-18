@@ -146,10 +146,14 @@ public class PermissionUtil {
         USE_EMBEDDED_ACTIVITIES, USE_EXTERNAL_APPLICATIONS, MESSAGE_EMBED_LINKS, MESSAGE_ATTACH_FILES);
   }
 
+  public EnumSet<Permission> getFilteredDeny() {
+    var deny = getDeny();
+    deny.removeAll(getAllow());
+    return deny;
+  }
+
   public EnumSet<Permission> getBotPermissions() {
-    var perms = EnumSet.of(VIEW_CHANNEL, MESSAGE_HISTORY, MESSAGE_SEND, MANAGE_CHANNEL);
-    perms.addAll(getDeny());
-    return perms;
+    return getDeny();
   }
 
   public List<Role> getRoles(Long gid) {
@@ -162,7 +166,6 @@ public class PermissionUtil {
   }
 
   public boolean validCategory(Long gid, Long cid) {
-
     return bot.getGuildById(gid).getCategoryById(cid) == null ||
         (bot.getGuildById(gid).getCategoryById(cid) != null &&
             categoryRepository.findByGuildId(gid).stream().anyMatch(c -> c.getId().equals(cid)));
