@@ -53,7 +53,7 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
       if (guild != null) {
         if (guild.getLog() != null) {
           messageUtil.sendLogMessage(
-              "Command `%s` executed by `%s (%s)`\nADD TICKET ADMIN: `%s (%s)`".formatted(
+              "Command `%s` executed by `%s (%s)`\nADD TICKET ADMIN\n`%s (%s)`".formatted(
                   "/ticket admins add",
                   member.getEffectiveName(),
                   member.getIdLong(),
