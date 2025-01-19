@@ -40,7 +40,7 @@ public class TicketRoleRemoveCommandListener extends ListenerAdapter {
           var role = e.getOption("role").getAsRole();
           e.getChannel().asTextChannel().getManager().removePermissionOverride(role.getIdLong())
               .queue();
-          e.reply("Role %s removed from ticket by %s (%s)".formatted(role.getAsMention(), member.getEffectiveName(), member.getIdLong())).queue();
+          e.reply("Role `%s` removed from ticket by `%s (%s)`".formatted(role.getAsMention(), member.getEffectiveName(), member.getIdLong())).queue();
         }
         default ->
             e.reply("This command can only be used in a text channel").setEphemeral(true).queue();

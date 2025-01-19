@@ -36,7 +36,7 @@ public class TicketRenameCommandListener extends ListenerAdapter {
       }
       e.getChannel().asTextChannel().getManager().setName(e.getOption("new_name").getAsString())
           .queue();
-      e.reply("Ticket renamed to %s by %s (%s)".formatted(e.getOption("new_name").getAsString(), member.getEffectiveName(), member.getIdLong())).queue();
+      e.reply("Ticket renamed to `%s` by `%s (%s)`".formatted(e.getOption("new_name").getAsString(), member.getEffectiveName(), member.getIdLong())).queue();
     }
   }
 }
