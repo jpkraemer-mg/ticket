@@ -39,6 +39,10 @@ public class TicketAdminsAddCommandListener extends ListenerAdapter {
 
     if (isPermitted) {
       var role = e.getOption("role").getAsRole();
+      if (role.equals(e.getGuild().getBotRole())) {
+        e.reply("Adding the bot role to ticket administrators is not supported!").setEphemeral(true).queue();
+        return;
+      }
       administratorRepository.save(
           new Administrator().setGuildId(gid).setRoleId(role.getIdLong()).setName(role.getName()));
       e.reply("Role %s added to ticket admins.".formatted(role.getAsMention())).setEphemeral(true)
