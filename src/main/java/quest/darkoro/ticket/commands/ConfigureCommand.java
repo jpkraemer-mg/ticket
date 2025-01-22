@@ -1,5 +1,6 @@
 package quest.darkoro.ticket.commands;
 
+import static net.dv8tion.jda.api.interactions.commands.OptionType.BOOLEAN;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.ROLE;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
@@ -26,6 +27,7 @@ public class ConfigureCommand implements BaseCommand {
                     .addOptions(
                         new OptionData(STRING, "name", "Name of the category", true),
                         new OptionData(STRING, "description", "Description of the category", true),
+                        new OptionData(BOOLEAN, "open", "Should the category be open by default?"),
                         new OptionData(ROLE, "role1", "Default assigned role for this category"),
                         new OptionData(ROLE, "role2", "Default assigned role for this category"),
                         new OptionData(ROLE, "role3", "Default assigned role for this category"),

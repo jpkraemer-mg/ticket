@@ -63,10 +63,12 @@ public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
       }
 
       var category = guild.createCategory(e.getOption("name").getAsString());
-      roles.forEach(r -> category.addRolePermissionOverride(r.getIdLong(), permissionUtil.getAllow(), permissionUtil.getFilteredDeny()));
-      category.addRolePermissionOverride(guild.getBotRole().getIdLong(), permissionUtil.getBotPermissions(), null);
-      category.addRolePermissionOverride(guild.getPublicRole().getIdLong(), null, permissionUtil.getDeny());
-
+      var open = e.getOption("open") != null && e.getOption("open").getAsBoolean();
+      if (!open) {
+        roles.forEach(r -> category.addRolePermissionOverride(r.getIdLong(), permissionUtil.getAllow(), permissionUtil.getFilteredDeny()));
+        category.addRolePermissionOverride(guild.getBotRole().getIdLong(), permissionUtil.getBotPermissions(), null);
+        category.addRolePermissionOverride(guild.getPublicRole().getIdLong(), null, permissionUtil.getDeny());
+      }
       var completeCategory = category.complete();
 
       categoryRepository.save(new Category()
