@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.SecondaryListener;
@@ -38,14 +39,15 @@ public class TicketCloseTicketButtonListener extends ListenerAdapter {
       var embed = new EmbedBuilder().setDescription(
           "```DO NOT DELETE NON-DUPLICATE / NON-SUPPORT TICKETS WITHOUT TRANSCRIPT!```").build();
       channel.getMemberPermissionOverrides().forEach(p -> p.delete().queue());
-      e
-          .editMessage(e.getMessage().getContentRaw())
-          .setEmbeds(e.getMessage().getEmbeds())
-          .setActionRow(
-              e.getMessage().getButtonById("close_ticket").asDisabled(),
-              e.getMessage().getButtonById("resolve_ticket").asDisabled()
-          )
-          .queue();
+//      e
+//          .editMessage(e.getMessage().getContentRaw())
+//          .setEmbeds(e.getMessage().getEmbeds())
+//          .setActionRow(
+//              e.getMessage().getButtonById("close_ticket").asDisabled(),
+//              e.getMessage().getButtonById("resolve_ticket").asDisabled()
+//          )
+//          .queue();
+      e.editComponents(ActionRow.of(e.getButton().asDisabled())).queue();
       e.getChannel()
           .asTextChannel()
           .sendMessage("Ticket closed by **%s** and all non-role members removed."
