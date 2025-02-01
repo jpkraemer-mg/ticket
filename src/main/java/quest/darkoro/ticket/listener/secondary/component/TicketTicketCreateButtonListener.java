@@ -24,14 +24,16 @@ public class TicketTicketCreateButtonListener extends ListenerAdapter {
       return;
     }
 
-    if (categoryRepository.findByGuildId(e.getGuild().getIdLong()).isEmpty()) {
+    var gid = e.getGuild().getIdLong();
+
+    if (categoryRepository.findByGuildId(gid).isEmpty()) {
       e.reply(
               "You must set up at least one ticket category.\nUse `/configure category add` for this.")
           .setEphemeral(true).queue();
       return;
     }
     var builder = StringSelectMenu.create("ticket_select").setPlaceholder("Select ticket category");
-    categoryRepository.findAll().forEach(c ->
+    categoryRepository.findByGuildId(gid).forEach(c ->
         builder.addOption(c.getName().toUpperCase(), c.getName(), c.getDescription())
     );
     var menu = builder.build();
