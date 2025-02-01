@@ -43,7 +43,7 @@ public class ConfigureChannelSetupCommandListener extends ListenerAdapter {
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
     if (isPermitted) {
-      var g = guildRepository.findById(gid).orElse(new Guild());
+      var g = guildRepository.findById(gid).orElse(new Guild().setId(gid));
       var setupCategory = e.getOption("category").getAsChannel();
       if (setupCategory.getType() != CATEGORY) {
         e.reply("You may only select a **category** type channel to use for setup!").setEphemeral(true).queue();
