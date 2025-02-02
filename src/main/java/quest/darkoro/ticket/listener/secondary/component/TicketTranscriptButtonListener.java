@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.transcripts.DiscordHtmlTranscripts;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.MissingAccessException;
@@ -20,6 +21,7 @@ import quest.darkoro.ticket.persistence.repository.GuildRepository;
 public class TicketTranscriptButtonListener extends ListenerAdapter {
 
   private final GuildRepository guildRepository;
+  private final MessageUtil messageUtil;
 
   @Override
   public void onButtonInteraction(@NonNull ButtonInteractionEvent e) {
@@ -69,5 +71,14 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
     }
 
     e.reply("Transcript saved to %s!".formatted(transcript.getAsMention())).queue();
+    if (g.getLog() != null) {
+      messageUtil.sendLogMessage("Button `%s` executed by `%s (%s)`\nSAVE TRANSCRIPT: `%s (%s)`".formatted(
+          e.getButton().getLabel(),
+          e.getMember().getEffectiveName(),
+          e.getMember().getIdLong(),
+          channel.getName(),
+          channel.getIdLong()), e.getGuild().getTextChannelById(g.getLog())
+      );
+    }
   }
 }
