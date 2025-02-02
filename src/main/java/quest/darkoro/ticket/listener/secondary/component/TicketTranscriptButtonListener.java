@@ -68,6 +68,6 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
       return;
     }
 
-    e.reply("Transcript saved to %s!".formatted(transcript.getAsMention())).setEphemeral(true).queue();
+    e.reply("Transcript saved to %s!".formatted(transcript.getAsMention())).queue();
   }
 }
