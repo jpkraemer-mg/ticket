@@ -25,11 +25,15 @@ public class AntiScamFilteringListener extends ListenerAdapter {
 
     var gid = e.getGuild().getIdLong();
     var filters = contentFilterRepository.findByGuildId(gid);
+    var regExFilter = "([\\^\\-\\\\#'`´%\\[\\]\"()$&*+/])";
 
     for (var filter: filters) {
       var content = e.getMessage().getContentRaw();
-      var sanitized = filter.getContent().replaceAll("([\\^\\-\\\\#'`´%\\[\\]\"()$&*+/])", "\\\\$1");
-      if (content.contains(filter.getContent()) || content.contains(sanitized)) {
+      var sanitized = filter.getContent().replaceAll(regExFilter, "\\\\$1");
+      if (content.toLowerCase().contains(filter.getContent().toLowerCase()) ||
+          content.toLowerCase().contains(sanitized.toLowerCase()) ||
+          content.toLowerCase().replaceAll(regExFilter, "").contains(sanitized.toLowerCase()) ||
+          content.toLowerCase().replaceAll(regExFilter, "").contains(filter.getContent().toLowerCase())) {
         e.getMessage().delete().queue();
         e.getChannel().sendMessage("Fuck off, no scamming").queue();
       }
