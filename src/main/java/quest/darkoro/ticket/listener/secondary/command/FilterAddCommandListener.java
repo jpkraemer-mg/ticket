@@ -32,7 +32,7 @@ public class FilterAddCommandListener extends ListenerAdapter {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
 
-    var filter = e.getOption("filter").getAsString().replaceAll("([\\^\\-\\\\#'`´%\\[\\]\"])", "\\$1");
+    var filter = e.getOption("filter").getAsString().replaceAll("([\\^\\-\\\\#'`´%\\[\\]\"])", "\\\\$1");
     log.info("Filter added: {}", filter);
     e.reply("Filter added: `%s`".formatted(filter)).setEphemeral(true).queue();
 //    contentFilterRepository.save(new ContentFilter().setGuildId(gid).setContent(filter));
