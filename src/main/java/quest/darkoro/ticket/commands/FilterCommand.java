@@ -16,7 +16,7 @@ public class FilterCommand implements BaseCommand {
 
   @Override
   public CommandData create() {
-    return Commands.slash("filter", "")
+    return Commands.slash("filter", "Base command for filter editing")
         .addSubcommands(new SubcommandData("add", "Add a message content filter")
             .addOption(STRING, "filter", "The filter to add", true))
         .addSubcommands(new SubcommandData("remove", "Remove a message content filter")
