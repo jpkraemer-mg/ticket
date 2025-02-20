@@ -6,15 +6,14 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Entity
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
+@Entity
 public class Ticket {
+
   @Id
   @GeneratedValue
   private Integer id;

@@ -8,14 +8,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Getter
-@Setter
-@Entity
+@Data
 @Accessors(chain = true)
+@Entity
 public class Administrator {
 
   @Id
