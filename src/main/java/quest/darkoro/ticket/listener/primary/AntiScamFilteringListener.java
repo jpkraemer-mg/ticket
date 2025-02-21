@@ -26,7 +26,7 @@ public class AntiScamFilteringListener extends ListenerAdapter {
 
     var gid = e.getGuild().getIdLong();
     var filters = contentFilterRepository.findByGuildId(gid);
-    var regExFilter = "([\\^\\-\\\\#'`´%\\[\\]\"()$&*+/])";
+    var regExFilter = "([\\^\\-\\\\#'`´%\\[\\]\"()$&*+/{}])";
 
     for (var f : filters) {
       var content = e.getMessage().getContentRaw().toLowerCase();
