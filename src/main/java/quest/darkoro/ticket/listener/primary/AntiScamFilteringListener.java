@@ -1,5 +1,6 @@
 package quest.darkoro.ticket.listener.primary;
 
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,15 +28,17 @@ public class AntiScamFilteringListener extends ListenerAdapter {
     var filters = contentFilterRepository.findByGuildId(gid);
     var regExFilter = "([\\^\\-\\\\#'`´%\\[\\]\"()$&*+/])";
 
-    for (var filter: filters) {
-      var content = e.getMessage().getContentRaw();
-      var sanitized = filter.getContent().replaceAll(regExFilter, "\\\\$1");
-      if (content.toLowerCase().contains(filter.getContent().toLowerCase()) ||
-          content.toLowerCase().contains(sanitized.toLowerCase()) ||
-          content.toLowerCase().replaceAll(regExFilter, "").contains(sanitized.toLowerCase()) ||
-          content.toLowerCase().replaceAll(regExFilter, "").contains(filter.getContent().toLowerCase())) {
+    for (var f : filters) {
+      var content = e.getMessage().getContentRaw().toLowerCase();
+      var filter = f.getContent().toLowerCase();
+      var sanitized = filter.replaceAll(regExFilter, "\\\\$1");
+      if (content.contains(filter) || content.contains(sanitized) ||
+          content.replaceAll(regExFilter, "").contains(sanitized) ||
+          content.replaceAll(regExFilter, "").contains(filter)) {
         e.getMessage().delete().queue();
-        e.getChannel().sendMessage("Fuck off, no scamming").queue();
+        e.getChannel()
+            .sendMessage("Fuck off, no scamming")
+            .queue(m -> m.delete().queueAfter(10, TimeUnit.SECONDS));
       }
     }
   }
