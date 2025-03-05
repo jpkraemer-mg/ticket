@@ -18,6 +18,6 @@ public class SlashCommandInteractionListener extends ListenerAdapter {
     if (e.isAcknowledged()) {
       return;
     }
-    log.debug("Test");
+    log.debug("Test again");
   }
 }
