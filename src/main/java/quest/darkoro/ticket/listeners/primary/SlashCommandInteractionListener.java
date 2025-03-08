@@ -65,7 +65,7 @@ public class SlashCommandInteractionListener extends ListenerAdapter {
           }
           case "channel" -> {
             switch (subcommand) {
-              case "role" -> configureCommandService.handleConfigureChannelRole(e);
+              case "roles" -> configureCommandService.handleConfigureChannelRole(e);
               case "ticket" -> configureCommandService.handleConfigureChannelTicket(e);
               case "transcript" -> configureCommandService.handleConfigureChannelTranscript(e);
               case "log" -> configureCommandService.handleConfigureChannelLog(e);
@@ -133,5 +133,9 @@ public class SlashCommandInteractionListener extends ListenerAdapter {
         e.reply("Unknown command!").setEphemeral(true).queue();
       }
     }
+    if (e.isAcknowledged()) {
+      return;
+    }
+    e.reply("Unknown (sub)command").setEphemeral(true).queue();
   }
 }

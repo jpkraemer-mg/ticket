@@ -161,10 +161,15 @@ public class TicketCommandService {
         e.reply("This channel doesn't seem to be a ticket!").setEphemeral(true).queue();
         return;
       }
+      var role = e.getOption("role").getAsRole();
+      if (role.equals(e.getGuild().getBotRole())) {
+        e.reply("Adding the bot role to a ticket is not supported!")
+            .setEphemeral(true).queue();
+        return;
+      }
       var type = e.getChannel().getType();
       switch (type) {
         case TEXT -> {
-          var role = e.getOption("role").getAsRole();
           e.getChannel().asTextChannel().getManager().putRolePermissionOverride(role.getIdLong(),
               permissionUtil.getAllow(), permissionUtil.getFilteredDeny()).queue();
           e.reply("Role `%s` added to ticket by `%s (%s)`".formatted(role.getAsMention(),
@@ -187,10 +192,15 @@ public class TicketCommandService {
         e.reply("This channel doesn't seem to be a ticket!").setEphemeral(true).queue();
         return;
       }
+      var role = e.getOption("role").getAsRole();
+      if (role.equals(e.getGuild().getBotRole())) {
+        e.reply("Removing the bot role from a ticket is not supported!")
+            .setEphemeral(true).queue();
+        return;
+      }
       var type = e.getChannel().getType();
       switch (type) {
         case TEXT -> {
-          var role = e.getOption("role").getAsRole();
           e.getChannel().asTextChannel().getManager().removePermissionOverride(role.getIdLong())
               .queue();
           e.reply("Role `%s` removed from ticket by `%s (%s)`".formatted(role.getAsMention(),
@@ -213,10 +223,15 @@ public class TicketCommandService {
         e.reply("This channel doesn't seem to be a ticket!").setEphemeral(true).queue();
         return;
       }
+      var user = e.getOption("user").getAsMember();
+      if (user.equals(e.getGuild().getSelfMember())) {
+        e.reply("Adding the bot user to a ticket is not supported!")
+            .setEphemeral(true).queue();
+        return;
+      }
       var type = e.getChannel().getType();
       switch (type) {
         case TEXT -> {
-          var user = e.getOption("user").getAsMember();
           e.getChannel().asTextChannel().getManager().putMemberPermissionOverride(user.getIdLong(),
               List.of(MESSAGE_SEND, VIEW_CHANNEL, MESSAGE_HISTORY), new ArrayList<>()).queue();
           e.reply("User `%s` added to ticket by `%s (%s)`".formatted(user.getAsMention(),
@@ -239,10 +254,15 @@ public class TicketCommandService {
         e.reply("This channel doesn't seem to be a ticket!").setEphemeral(true).queue();
         return;
       }
+      var user = e.getOption("user").getAsMember();
+      if (user.equals(e.getGuild().getSelfMember())) {
+        e.reply("Removing the bot user from a ticket is not supported!")
+            .setEphemeral(true).queue();
+        return;
+      }
       var type = e.getChannel().getType();
       switch (type) {
         case TEXT -> {
-          var user = e.getOption("user").getAsMember();
           e.getChannel().asTextChannel().getManager().removePermissionOverride(user.getIdLong())
               .queue();
           e.reply("User `%s` removed from ticket by `%s (%s)`".formatted(user.getAsMention(),
