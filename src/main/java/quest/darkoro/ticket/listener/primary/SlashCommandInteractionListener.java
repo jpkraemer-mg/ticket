@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
+import quest.darkoro.ticket.annotations.PrimaryListener;
 import quest.darkoro.ticket.annotations.TertiaryListener;
 import quest.darkoro.ticket.listener.secondary.command.ConfigureCategoryAddService;
 import quest.darkoro.ticket.listener.secondary.command.ConfigureCategoryRemoveService;
@@ -30,7 +31,7 @@ import quest.darkoro.ticket.listener.secondary.command.TicketRoleRemoveService;
 import quest.darkoro.ticket.listener.secondary.command.TicketUserAddService;
 import quest.darkoro.ticket.listener.secondary.command.TicketUserRemoveService;
 
-@TertiaryListener
+@PrimaryListener
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -61,6 +62,11 @@ public class SlashCommandInteractionListener extends ListenerAdapter {
 
   @Override
   public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
+    if (e.getGuild() == null) {
+      e.reply("This command may only be used in a guild!").setEphemeral(true).queue();
+      return;
+    }
+
     var command = e.getName();
     var subcommandGroup = e.getSubcommandGroup() != null ? e.getSubcommandGroup() : "";
     var subcommand = e.getSubcommandName() != null ? e.getSubcommandName() : "";
