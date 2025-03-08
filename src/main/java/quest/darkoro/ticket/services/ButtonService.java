@@ -39,7 +39,7 @@ public class ButtonService {
       case "ticket_create" -> handleTicketCreate(e);
       case "transcript" -> handleTicketTranscript(e);
       default -> {
-        if (e.getButton().getId().startsWith("role_")) {
+        if (e.getButton().getId().startsWith("selfrole_")) {
           configureSelfroleRoleId(e);
         } else {
           e.reply("Unknown button!").setEphemeral(true).queue();
