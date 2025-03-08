@@ -17,7 +17,7 @@ import quest.darkoro.ticket.services.TicketCommandService;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class SlashCommandInteractionListener extends ListenerAdapter {
+public class CommandListener extends ListenerAdapter {
 
   private final HelpCommandService helpCommandService;
   private final QueryCommandService queryCommandService;

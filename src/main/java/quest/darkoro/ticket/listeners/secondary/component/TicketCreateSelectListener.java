@@ -11,10 +11,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 
 @Service
-@SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
 public class TicketCreateSelectListener extends ListenerAdapter {

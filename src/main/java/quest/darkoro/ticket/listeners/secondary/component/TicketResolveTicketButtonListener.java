@@ -7,11 +7,9 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
-@SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
 public class TicketResolveTicketButtonListener extends ListenerAdapter {

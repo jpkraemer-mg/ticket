@@ -1,13 +1,11 @@
-package quest.darkoro.ticket.listeners.secondary.component;
+package quest.darkoro.ticket.services;
 
 import java.util.Objects;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.springframework.stereotype.Service;
@@ -17,22 +15,25 @@ import quest.darkoro.ticket.persistence.repository.TicketRepository;
 import quest.darkoro.ticket.util.DataUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
-@Service
 @Slf4j
 @RequiredArgsConstructor
-public class TicketCreateModalListener extends ListenerAdapter {
+@Service
+public class ModalService {
 
+  private final DataUtil dataUtil;
   private final CategoryRepository categoryRepository;
   private final PermissionUtil permissionUtil;
-  private final DataUtil dataUtil;
   private final TicketRepository ticketRepository;
 
-  @Override
-  public void onModalInteraction(@NonNull ModalInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getModalId().startsWith("ticket_create")) {
-      return;
+  public void distributeEvent(ModalInteractionEvent e) {
+    if (e.getModalId().startsWith("ticket_create")) {
+      handleTicketCreate(e);
+    } else {
+      e.reply("Unknown modal: %s".formatted(e.getModalId())).setEphemeral(true).queue();
     }
+  }
 
+  public void handleTicketCreate(ModalInteractionEvent e) {
     e.deferReply(true).queue();
 
     var selected = e.getModalId().substring(e.getModalId().lastIndexOf("_") + 1).toUpperCase();

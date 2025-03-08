@@ -5,7 +5,6 @@ import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.PR
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -16,7 +15,6 @@ import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @SecondaryListener
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TicketCloseTicketButtonListener extends ListenerAdapter {

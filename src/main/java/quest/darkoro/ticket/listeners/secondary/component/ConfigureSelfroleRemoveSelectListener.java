@@ -8,14 +8,12 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Selfrole;
 import quest.darkoro.ticket.persistence.repository.GuildRepository;
 import quest.darkoro.ticket.persistence.repository.SelfroleRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 
 @Service
-@SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
 public class ConfigureSelfroleRemoveSelectListener extends ListenerAdapter {
@@ -67,12 +65,13 @@ public class ConfigureSelfroleRemoveSelectListener extends ListenerAdapter {
         messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guild.getRole()), e.getJDA());
       }
       if (guild.getLog() != null) {
-        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) REMOVE `%s`".formatted(
-            "/configure selfrole remove",
-            member.getEffectiveName(),
-            member.getIdLong(),
-            roles
-        ), e.getGuild().getTextChannelById(guild.getLog()));
+        messageUtil.sendLogMessage(
+            "Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) REMOVE `%s`".formatted(
+                "/configure selfrole remove",
+                member.getEffectiveName(),
+                member.getIdLong(),
+                roles
+            ), e.getGuild().getTextChannelById(guild.getLog()));
       }
     }
   }

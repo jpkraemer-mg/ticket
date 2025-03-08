@@ -6,12 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.repository.TicketRepository;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
-@SecondaryListener
 @RequiredArgsConstructor
 @Slf4j
 public class TicketResolveBugSelectListener extends ListenerAdapter {
@@ -43,7 +41,8 @@ public class TicketResolveBugSelectListener extends ListenerAdapter {
           e.getChannel()
               .asTextChannel()
               .sendMessage("%s, you may choose any one reward from **T1 Bug Report Rewards**"
-                  .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete().getAsMention())
+                  .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete()
+                      .getAsMention())
               )
               .queue();
         }
@@ -54,7 +53,8 @@ public class TicketResolveBugSelectListener extends ListenerAdapter {
           e.getChannel()
               .asTextChannel()
               .sendMessage("%s, you may choose any one reward from **T1 or T2 Bug Report Rewards**"
-                  .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete().getAsMention())
+                  .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete()
+                      .getAsMention())
               )
               .queue();
         }
@@ -65,7 +65,8 @@ public class TicketResolveBugSelectListener extends ListenerAdapter {
               .asTextChannel()
               .sendMessage(
                   "%s, you may choose any one reward from **T1, T2 or T3 Bug Report Rewards**"
-                      .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete().getAsMention())
+                      .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete()
+                          .getAsMention())
               )
               .queue();
         }

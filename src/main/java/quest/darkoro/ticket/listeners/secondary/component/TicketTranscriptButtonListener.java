@@ -5,16 +5,14 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import quest.darkoro.ticket.util.MessageUtil;
-import quest.darkoro.transcripts.DiscordHtmlTranscripts;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.MissingAccessException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.util.MessageUtil;
+import quest.darkoro.transcripts.DiscordHtmlTranscripts;
 
-@SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -34,7 +32,8 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
 
     var transcriptExist = guildRepository.findById(gid).isPresent();
     if (!transcriptExist) {
-      e.reply("No configuration available!\nSet one using `/configure transcript`").setEphemeral(true).queue();
+      e.reply("No configuration available!\nSet one using `/configure transcript`")
+          .setEphemeral(true).queue();
       return;
     }
 
@@ -55,10 +54,12 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
 
     try {
       transcript.sendFiles(DiscordHtmlTranscripts.getInstance()
-          .createTranscript(channel, "transcript_%s.html".formatted(channel.getName().toLowerCase())))
+              .createTranscript(channel,
+                  "transcript_%s.html".formatted(channel.getName().toLowerCase())))
           .queue();
     } catch (IOException ex) {
-      e.reply("Error while creating transcript from channel '%s'".formatted(channel.getName())).queue();
+      e.reply("Error while creating transcript from channel '%s'".formatted(channel.getName()))
+          .queue();
       log.error("Error while creating transcript from channel '{}'", channel.getName(), ex);
       return;
     } catch (MissingAccessException ex) {
@@ -72,12 +73,13 @@ public class TicketTranscriptButtonListener extends ListenerAdapter {
 
     e.reply("Transcript saved to %s!".formatted(transcript.getAsMention())).queue();
     if (g.getLog() != null) {
-      messageUtil.sendLogMessage("Button `%s` executed by `%s (%s)`\nSAVE TRANSCRIPT: `%s (%s)`".formatted(
-          e.getButton().getLabel(),
-          e.getMember().getEffectiveName(),
-          e.getMember().getIdLong(),
-          channel.getName(),
-          channel.getIdLong()), e.getGuild().getTextChannelById(g.getLog())
+      messageUtil.sendLogMessage(
+          "Button `%s` executed by `%s (%s)`\nSAVE TRANSCRIPT: `%s (%s)`".formatted(
+              e.getButton().getLabel(),
+              e.getMember().getEffectiveName(),
+              e.getMember().getIdLong(),
+              channel.getName(),
+              channel.getIdLong()), e.getGuild().getTextChannelById(g.getLog())
       );
     }
   }
