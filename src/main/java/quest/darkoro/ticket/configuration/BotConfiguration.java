@@ -1,6 +1,5 @@
 package quest.darkoro.ticket.configuration;
 
-import static net.dv8tion.jda.api.entities.Activity.watching;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.MESSAGE_CONTENT;
@@ -13,15 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import quest.darkoro.ticket.listener.BotReadyListener;
-import quest.darkoro.ticket.listener.primary.GuildListener;
+import quest.darkoro.ticket.listeners.BotReadyListener;
+import quest.darkoro.ticket.listeners.primary.GuildListener;
 
 @Slf4j
 @RequiredArgsConstructor
