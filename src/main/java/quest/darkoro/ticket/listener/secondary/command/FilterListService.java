@@ -12,10 +12,12 @@ import quest.darkoro.ticket.annotations.SecondaryListener;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class FilterRemoveCommandListener extends ListenerAdapter {
+public class FilterListService extends ListenerAdapter {
+
   @Override
   public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getName().equals("filter") || !"remove".equals(e.getSubcommandName())) {
+    if (e.isAcknowledged() || !e.getName().equals("filter") || !"list".equals(
+        e.getSubcommandName())) {
       return;
     }
   }

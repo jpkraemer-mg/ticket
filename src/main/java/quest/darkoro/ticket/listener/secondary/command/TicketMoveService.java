@@ -2,30 +2,20 @@ package quest.darkoro.ticket.listener.secondary.command;
 
 import static net.dv8tion.jda.api.entities.channel.ChannelType.CATEGORY;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SecondaryListener
-public class TicketMoveCommandListener extends ListenerAdapter {
+public class TicketMoveService {
 
   private final PermissionUtil permissionUtil;
 
-  @Override
-  public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getName().equals("ticket") || !"move".equals(
-        e.getSubcommandName())) {
-      return;
-    }
-
+  public void handleTicketMove(SlashCommandInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
@@ -44,7 +34,8 @@ public class TicketMoveCommandListener extends ListenerAdapter {
         return;
       }
       manager.setParent(category.asCategory()).queue();
-      e.reply("Ticket moved to `%s` by `%s (%s)`".formatted(category.getName(), member.getEffectiveName(), member.getIdLong())).queue();
+      e.reply("Ticket moved to `%s` by `%s (%s)`".formatted(category.getName(),
+          member.getEffectiveName(), member.getIdLong())).queue();
     }
   }
 }

@@ -3,16 +3,13 @@ package quest.darkoro.ticket.listener.secondary.command;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Category;
 import quest.darkoro.ticket.persistence.repository.CategoryRepository;
 import quest.darkoro.ticket.persistence.repository.GuildRepository;
@@ -20,23 +17,16 @@ import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
-@SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
-public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
+public class ConfigureCategoryAddService {
 
   private final PermissionUtil permissionUtil;
   private final CategoryRepository categoryRepository;
   private final MessageUtil messageUtil;
   private final GuildRepository guildRepository;
 
-  @Override
-  public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getName().equals("configure") ||
-        !"category".equals(e.getSubcommandGroup()) || !"add".equals(e.getSubcommandName())) {
-      return;
-    }
-
+  public void handleConfigureCategoryAdd(SlashCommandInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
@@ -65,9 +55,13 @@ public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
       var category = guild.createCategory(e.getOption("name").getAsString());
       var open = e.getOption("open") != null && e.getOption("open").getAsBoolean();
       if (!open) {
-        roles.forEach(r -> category.addRolePermissionOverride(r.getIdLong(), permissionUtil.getAllow(), permissionUtil.getFilteredDeny()));
-        category.addRolePermissionOverride(guild.getBotRole().getIdLong(), permissionUtil.getBotPermissions(), null);
-        category.addRolePermissionOverride(guild.getPublicRole().getIdLong(), null, permissionUtil.getDeny());
+        roles.forEach(
+            r -> category.addRolePermissionOverride(r.getIdLong(), permissionUtil.getAllow(),
+                permissionUtil.getFilteredDeny()));
+        category.addRolePermissionOverride(guild.getBotRole().getIdLong(),
+            permissionUtil.getBotPermissions(), null);
+        category.addRolePermissionOverride(guild.getPublicRole().getIdLong(), null,
+            permissionUtil.getDeny());
       }
       var completeCategory = category.complete();
 
@@ -85,14 +79,16 @@ public class ConfigureCategoryAddCommandListener extends ListenerAdapter {
           messageUtil.sendTicketMessage(guild.getTextChannelById(g.getBase()), e.getJDA());
         }
         if (g.getLog() != null) {
-          messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCATEGORY CREATE `%s (%s)`\n`%s`".formatted(
-              "/configure category add",
-              member.getEffectiveName(),
-              member.getIdLong(),
-              completeCategory.getName(),
-              completeCategory.getIdLong(),
-              !roles.isEmpty() ? roles.stream().map(Role::getName).collect(Collectors.joining(", ")) : "No roles assigned to category"
-          ), guild.getTextChannelById(g.getLog()));
+          messageUtil.sendLogMessage(
+              "Command `%s` executed by `%s (%s)`\nCATEGORY CREATE `%s (%s)`\n`%s`".formatted(
+                  "/configure category add",
+                  member.getEffectiveName(),
+                  member.getIdLong(),
+                  completeCategory.getName(),
+                  completeCategory.getIdLong(),
+                  !roles.isEmpty() ? roles.stream().map(Role::getName)
+                      .collect(Collectors.joining(", ")) : "No roles assigned to category"
+              ), guild.getTextChannelById(g.getLog()));
         }
       }
     }

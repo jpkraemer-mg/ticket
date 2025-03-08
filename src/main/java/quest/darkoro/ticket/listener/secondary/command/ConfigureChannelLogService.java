@@ -2,32 +2,23 @@ package quest.darkoro.ticket.listener.secondary.command;
 
 import static net.dv8tion.jda.api.entities.channel.ChannelType.TEXT;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Guild;
 import quest.darkoro.ticket.persistence.repository.GuildRepository;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
-@SecondaryListener
 @RequiredArgsConstructor
 @Slf4j
-public class ConfigureChannelLogCommandListener extends ListenerAdapter {
+public class ConfigureChannelLogService {
 
   private final PermissionUtil permissionUtil;
   private final GuildRepository guildRepository;
 
-  @Override
-  public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getName().equals("configure") || !"channel".equals(e.getSubcommandGroup()) || !"log".equals(e.getSubcommandName())) {
-      return;
-    }
-
+  public void handleConfigureChannelLog(SlashCommandInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);

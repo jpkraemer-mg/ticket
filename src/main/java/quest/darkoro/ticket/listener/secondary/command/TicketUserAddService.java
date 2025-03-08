@@ -9,27 +9,17 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
-@SecondaryListener
 @RequiredArgsConstructor
 @Slf4j
-public class TicketUserAddCommandListener extends ListenerAdapter {
+public class TicketUserAddService {
 
   private final PermissionUtil permissionUtil;
 
-  @Override
-  public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getName().equals("ticket") ||
-        !"user".equals(e.getSubcommandGroup()) || !"add".equals(e.getSubcommandName())) {
-      return;
-    }
-
+  public void handleTicketUserAdd(SlashCommandInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
@@ -46,7 +36,8 @@ public class TicketUserAddCommandListener extends ListenerAdapter {
           var user = e.getOption("user").getAsMember();
           e.getChannel().asTextChannel().getManager().putMemberPermissionOverride(user.getIdLong(),
               List.of(MESSAGE_SEND, VIEW_CHANNEL, MESSAGE_HISTORY), new ArrayList<>()).queue();
-          e.reply("User `%s` added to ticket by `%s (%s)`".formatted(user.getAsMention(), member.getEffectiveName(), member.getIdLong())).queue();
+          e.reply("User `%s` added to ticket by `%s (%s)`".formatted(user.getAsMention(),
+              member.getEffectiveName(), member.getIdLong())).queue();
         }
         default ->
             e.reply("This command can only be used in a text channel").setEphemeral(true).queue();

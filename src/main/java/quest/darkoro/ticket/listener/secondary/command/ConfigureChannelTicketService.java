@@ -1,35 +1,25 @@
 package quest.darkoro.ticket.listener.secondary.command;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.SecondaryListener;
 import quest.darkoro.ticket.persistence.model.Guild;
 import quest.darkoro.ticket.persistence.repository.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Service
-@SecondaryListener
 @Slf4j
 @RequiredArgsConstructor
-public class ConfigureChannelTicketCommandListener extends ListenerAdapter {
+public class ConfigureChannelTicketService {
 
   private final PermissionUtil permissionUtil;
   private final GuildRepository guildRepository;
   private final MessageUtil messageUtil;
 
-  @Override
-  public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
-    if (e.isAcknowledged() || !e.getName().equals("configure") || !"channel".equals(
-        e.getSubcommandGroup()) || !"ticket".equals(e.getSubcommandName())) {
-      return;
-    }
-
+  public void handleConfigureChannelTicket(SlashCommandInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
@@ -43,14 +33,16 @@ public class ConfigureChannelTicketCommandListener extends ListenerAdapter {
       var guild = guildRepository.findById(gid).orElse(new Guild());
       guildRepository.save(guild.setId(gid).setBase(channel.getIdLong()));
       messageUtil.sendTicketMessage(channel.asTextChannel(), e.getJDA());
-      e.reply("Tickets may now be created from %s".formatted(channel.getAsMention())).setEphemeral(true).queue();
+      e.reply("Tickets may now be created from %s".formatted(channel.getAsMention()))
+          .setEphemeral(true).queue();
       if (guild.getLog() != null) {
-        messageUtil.sendLogMessage("Command `%s` executed by `%s (%s)`\nCONFIGURE TICKET MESSAGE CHANNEL: `%s (%s)`".formatted(
-            "/configure channel transcript",
-            member.getEffectiveName(),
-            member.getIdLong(),
-            channel.getName(),
-            channel.getId()), e.getGuild().getTextChannelById(guild.getLog())
+        messageUtil.sendLogMessage(
+            "Command `%s` executed by `%s (%s)`\nCONFIGURE TICKET MESSAGE CHANNEL: `%s (%s)`".formatted(
+                "/configure channel transcript",
+                member.getEffectiveName(),
+                member.getIdLong(),
+                channel.getName(),
+                channel.getId()), e.getGuild().getTextChannelById(guild.getLog())
         );
       }
     }

@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.listener.tertiary;
+package quest.darkoro.ticket.listener.secondary.command;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -6,18 +6,19 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.annotations.TertiaryListener;
+import quest.darkoro.ticket.annotations.SecondaryListener;
 
-@TertiaryListener
-@RequiredArgsConstructor
+@SecondaryListener
 @Slf4j
+@RequiredArgsConstructor
 @Service
-public class SlashCommandInteractionListener extends ListenerAdapter {
+public class FilterRemoveService extends ListenerAdapter {
+
   @Override
   public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
-    if (e.isAcknowledged()) {
+    if (e.isAcknowledged() || !e.getName().equals("filter") || !"remove".equals(
+        e.getSubcommandName())) {
       return;
     }
-    log.debug("Test again");
   }
 }
