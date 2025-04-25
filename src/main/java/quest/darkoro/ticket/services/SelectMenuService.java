@@ -32,17 +32,17 @@ public class SelectMenuService {
   private final TicketRepository ticketRepository;
 
   public void distributeEvent(GenericSelectMenuInteractionEvent<?, ?> e) {
-    if (e instanceof StringSelectInteractionEvent) {
+    if (e instanceof StringSelectInteractionEvent ev) {
       switch (e.getComponentId()) {
-        case "ticket_select" -> handleTicketCreate((StringSelectInteractionEvent) e);
-        case "resolve_bug" -> handleTicketResolveBug((StringSelectInteractionEvent) e);
+        case "ticket_select" -> handleTicketCreate(ev);
+        case "resolve_bug" -> handleTicketResolveBug(ev);
         default -> e.reply("Unknown StringSelectInteractionEvent: %s".formatted(e.getComponentId()))
             .setEphemeral(true).queue();
       }
-    } else if (e instanceof EntitySelectInteractionEvent) {
+    } else if (e instanceof EntitySelectInteractionEvent ev) {
       switch (e.getComponentId()) {
-        case "selfrole_add" -> handleConfigureSelfroleAdd((EntitySelectInteractionEvent) e);
-        case "selfrole_remove" -> handleConfigureSelfroleRemove((EntitySelectInteractionEvent) e);
+        case "selfrole_add" -> handleConfigureSelfroleAdd(ev);
+        case "selfrole_remove" -> handleConfigureSelfroleRemove(ev);
         default -> e.reply("Unknown EntitySelectInteractionEvent: %s".formatted(e.getComponentId()))
             .setEphemeral(true).queue();
       }
