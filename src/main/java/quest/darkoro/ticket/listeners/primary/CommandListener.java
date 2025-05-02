@@ -11,6 +11,7 @@ import quest.darkoro.ticket.services.HelpCommandService;
 import quest.darkoro.ticket.services.QueryCommandService;
 import quest.darkoro.ticket.services.ConfigureCommandService;
 import quest.darkoro.ticket.services.FilterCommandService;
+import quest.darkoro.ticket.services.RewardCommandService;
 import quest.darkoro.ticket.services.TicketCommandService;
 
 @PrimaryListener
@@ -24,6 +25,7 @@ public class CommandListener extends ListenerAdapter {
   private final ConfigureCommandService configureCommandService;
   private final TicketCommandService ticketCommandService;
   private final FilterCommandService filterCommandService;
+  private final RewardCommandService rewardCommandService;
 
   @Override
   public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent e) {
@@ -124,6 +126,34 @@ public class CommandListener extends ListenerAdapter {
           case "rename" -> ticketCommandService.handleTicketRename(e);
           default -> {
             log.warn("Unknown subcommand {} of command {}", subcommand, command);
+            e.reply("Unknown subcommand!").setEphemeral(true).queue();
+          }
+        }
+      }
+      case "reward" -> {
+        switch (subcommandGroup) {
+          case "tier" -> {
+            switch (subcommand) {
+              case "create" -> rewardCommandService.handleCreateRewardTier(e);
+              default -> {
+                log.warn("Unknown subcommand {} for subcommandGroup {} of command {}", subcommand,
+                    subcommandGroup, command);
+                e.reply("Unknown subcommand!").setEphemeral(true).queue();
+              }
+            }
+          }
+          case "" -> {
+            switch (subcommand) {
+              case "create" -> rewardCommandService.handleCreateReward(e);
+              case "delete" -> rewardCommandService.handleDeleteReward(e);
+              default -> {
+                log.warn("Unknown subcommand {} of command {}", subcommand, command);
+                e.reply("Unknown subcommand!").setEphemeral(true).queue();
+              }
+            }
+          }
+          default -> {
+            log.warn("Unknown subcommandGroup {}", subcommandGroup);
             e.reply("Unknown subcommand!").setEphemeral(true).queue();
           }
         }

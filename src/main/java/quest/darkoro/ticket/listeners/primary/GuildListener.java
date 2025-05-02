@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.interfaces.BaseCommand;
-import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 
 @Service

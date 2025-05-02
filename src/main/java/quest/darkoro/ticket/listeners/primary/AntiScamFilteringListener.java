@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.annotations.PrimaryListener;
-import quest.darkoro.ticket.persistence.repository.ContentFilterRepository;
+import quest.darkoro.ticket.persistence.ContentFilterRepository;
 
 @Slf4j
 @RequiredArgsConstructor

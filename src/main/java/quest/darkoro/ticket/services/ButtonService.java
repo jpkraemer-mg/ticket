@@ -15,8 +15,9 @@ import net.dv8tion.jda.api.exceptions.MissingAccessException;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.persistence.repository.CategoryRepository;
-import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.persistence.CategoryRepository;
+import quest.darkoro.ticket.persistence.GuildRepository;
+import quest.darkoro.ticket.persistence.RewardTierRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 import quest.darkoro.transcripts.DiscordHtmlTranscripts;
@@ -30,6 +31,7 @@ public class ButtonService {
   private final GuildRepository guildRepository;
   private final MessageUtil messageUtil;
   private final CategoryRepository categoryRepository;
+  private final RewardTierRepository rewardTierRepository;
 
   public void distributeEvent(ButtonInteractionEvent e) {
     switch (e.getButton().getId()) {
@@ -134,14 +136,19 @@ public class ButtonService {
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
     if (isPermitted) {
+      var tiers = rewardTierRepository.findByGuildId(gid);
+      if (tiers.isEmpty()) {
+        e.reply("No reward tiers configured, send a manual message or create some!")
+            .setEphemeral(true).queue();
+        return;
+      }
       var menu = StringSelectMenu.create("resolve_bug")
-          .addOption("Resolved / Other", "t0")
-          .addOption("Tier 1", "t1")
-          .addOption("Tier 2", "t2")
-          .addOption("Tier 3", "t3")
-          .build();
+          .addOption("Resolved / Other", "none");
+      for (var tier : tiers) {
+        menu.addOption(tier.getName(), tier.getId().toString());
+      }
       e.editButton(e.getButton().withDisabled(true)).queue();
-      e.getChannel().asTextChannel().sendMessage("").setActionRow(menu).queue();
+      e.getChannel().asTextChannel().sendMessage("").setActionRow(menu.build()).queue();
     }
   }
 

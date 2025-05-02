@@ -1,18 +1,14 @@
 package quest.darkoro.ticket.util;
 
-import static net.dv8tion.jda.api.Permission.CREATE_INSTANT_INVITE;
 import static net.dv8tion.jda.api.Permission.CREATE_PRIVATE_THREADS;
 import static net.dv8tion.jda.api.Permission.CREATE_PUBLIC_THREADS;
 import static net.dv8tion.jda.api.Permission.MANAGE_CHANNEL;
 import static net.dv8tion.jda.api.Permission.MESSAGE_ATTACH_FILES;
-import static net.dv8tion.jda.api.Permission.MESSAGE_ATTACH_VOICE_MESSAGE;
 import static net.dv8tion.jda.api.Permission.MESSAGE_EMBED_LINKS;
 import static net.dv8tion.jda.api.Permission.MESSAGE_HISTORY;
 import static net.dv8tion.jda.api.Permission.MESSAGE_MENTION_EVERYONE;
 import static net.dv8tion.jda.api.Permission.MESSAGE_SEND;
 import static net.dv8tion.jda.api.Permission.MESSAGE_SEND_POLLS;
-import static net.dv8tion.jda.api.Permission.USE_EMBEDDED_ACTIVITIES;
-import static net.dv8tion.jda.api.Permission.USE_EXTERNAL_APPLICATIONS;
 import static net.dv8tion.jda.api.Permission.VIEW_CHANNEL;
 
 import java.util.EnumSet;
@@ -27,8 +23,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import org.springframework.stereotype.Component;
-import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
-import quest.darkoro.ticket.persistence.repository.CategoryRepository;
+import quest.darkoro.ticket.persistence.AdministratorRepository;
+import quest.darkoro.ticket.persistence.CategoryRepository;
 
 @Component
 @RequiredArgsConstructor

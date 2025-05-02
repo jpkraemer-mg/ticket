@@ -20,9 +20,9 @@ import net.dv8tion.jda.api.exceptions.MissingAccessException;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.stereotype.Component;
-import quest.darkoro.ticket.persistence.repository.CategoryRepository;
-import quest.darkoro.ticket.persistence.repository.GuildRepository;
-import quest.darkoro.ticket.persistence.repository.SelfroleRepository;
+import quest.darkoro.ticket.persistence.CategoryRepository;
+import quest.darkoro.ticket.persistence.GuildRepository;
+import quest.darkoro.ticket.persistence.SelfroleRepository;
 
 @Component
 @RequiredArgsConstructor

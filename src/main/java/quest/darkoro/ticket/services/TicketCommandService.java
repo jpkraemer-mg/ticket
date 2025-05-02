@@ -12,9 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.persistence.model.Administrator;
-import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
-import quest.darkoro.ticket.persistence.repository.CategoryRepository;
-import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.persistence.AdministratorRepository;
+import quest.darkoro.ticket.persistence.CategoryRepository;
+import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 

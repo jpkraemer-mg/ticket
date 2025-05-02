@@ -6,8 +6,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.persistence.model.ContentFilter;
 import quest.darkoro.ticket.persistence.model.Guild;
-import quest.darkoro.ticket.persistence.repository.ContentFilterRepository;
-import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.persistence.ContentFilterRepository;
+import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 
 @Service

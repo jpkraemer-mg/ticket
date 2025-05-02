@@ -20,9 +20,9 @@ import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.persistence.model.Category;
 import quest.darkoro.ticket.persistence.model.Guild;
-import quest.darkoro.ticket.persistence.repository.AdministratorRepository;
-import quest.darkoro.ticket.persistence.repository.CategoryRepository;
-import quest.darkoro.ticket.persistence.repository.GuildRepository;
+import quest.darkoro.ticket.persistence.AdministratorRepository;
+import quest.darkoro.ticket.persistence.CategoryRepository;
+import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 

@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.persistence.model.Ticket;
-import quest.darkoro.ticket.persistence.repository.CategoryRepository;
-import quest.darkoro.ticket.persistence.repository.TicketRepository;
+import quest.darkoro.ticket.persistence.CategoryRepository;
+import quest.darkoro.ticket.persistence.TicketRepository;
 import quest.darkoro.ticket.util.DataUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 

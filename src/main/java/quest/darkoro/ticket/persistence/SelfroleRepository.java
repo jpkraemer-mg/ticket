@@ -1,4 +1,4 @@
-package quest.darkoro.ticket.persistence.repository;
+package quest.darkoro.ticket.persistence;
 
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;

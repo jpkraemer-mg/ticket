@@ -3,6 +3,7 @@ package quest.darkoro.ticket.services;
 import static net.dv8tion.jda.api.interactions.components.text.TextInputStyle.PARAGRAPH;
 import static net.dv8tion.jda.api.interactions.components.text.TextInputStyle.SHORT;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,13 +11,17 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.springframework.stereotype.Service;
+import quest.darkoro.ticket.persistence.RewardRepository;
+import quest.darkoro.ticket.persistence.RewardTierRepository;
+import quest.darkoro.ticket.persistence.model.Guild;
 import quest.darkoro.ticket.persistence.model.Selfrole;
-import quest.darkoro.ticket.persistence.repository.GuildRepository;
-import quest.darkoro.ticket.persistence.repository.SelfroleRepository;
-import quest.darkoro.ticket.persistence.repository.TicketRepository;
+import quest.darkoro.ticket.persistence.GuildRepository;
+import quest.darkoro.ticket.persistence.SelfroleRepository;
+import quest.darkoro.ticket.persistence.TicketRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
@@ -30,12 +35,16 @@ public class SelectMenuService {
   private final MessageUtil messageUtil;
   private final PermissionUtil permissionUtil;
   private final TicketRepository ticketRepository;
+  private final RewardRepository rewardRepository;
+  private final RewardTierRepository rewardTierRepository;
 
   public void distributeEvent(GenericSelectMenuInteractionEvent<?, ?> e) {
     if (e instanceof StringSelectInteractionEvent ev) {
       switch (e.getComponentId()) {
         case "ticket_select" -> handleTicketCreate(ev);
         case "resolve_bug" -> handleTicketResolveBug(ev);
+        case String s when s.startsWith("createreward_") -> handleCreateReward(ev);
+        case String s when s.startsWith("choosereward_") -> handleCreateReward(ev);
         default -> e.reply("Unknown StringSelectInteractionEvent: %s".formatted(e.getComponentId()))
             .setEphemeral(true).queue();
       }
@@ -51,7 +60,7 @@ public class SelectMenuService {
     }
   }
 
-  public void handleConfigureSelfroleAdd(EntitySelectInteractionEvent e) {
+  private void handleConfigureSelfroleAdd(EntitySelectInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var existing = selfroleRepository
@@ -102,7 +111,7 @@ public class SelectMenuService {
     }
   }
 
-  public void handleConfigureSelfroleRemove(EntitySelectInteractionEvent e) {
+  private void handleConfigureSelfroleRemove(EntitySelectInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var existing = selfroleRepository
@@ -151,7 +160,7 @@ public class SelectMenuService {
     }
   }
 
-  public void handleTicketCreate(StringSelectInteractionEvent e) {
+  private void handleTicketCreate(StringSelectInteractionEvent e) {
     var selected = e.getSelectedOptions().get(0).getLabel();
 
     TextInput title = TextInput.create("title", "Title of the ticket", SHORT)
@@ -192,55 +201,100 @@ public class SelectMenuService {
     e.replyModal(modal).queue();
   }
 
-  public void handleTicketResolveBug(StringSelectInteractionEvent e) {
+  private void handleTicketResolveBug(StringSelectInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
     if (isPermitted) {
       var selected = e.getSelectedOptions().get(0).getValue();
-
       e.getMessage().delete().queue();
 
-      switch (selected) {
-        case "t0" ->
-            e.reply("User won't get pinged, no reward to be given out.").setEphemeral(true).queue();
-        case "t1" -> {
-          e.reply("User will be asked to choose any one T1 reward").setEphemeral(true).queue();
-          var ticket = ticketRepository.getTicketByChannel(e.getChannel().getIdLong());
-          e.getChannel()
-              .asTextChannel()
-              .sendMessage("%s, you may choose any one reward from **T1 Bug Report Rewards**"
-                  .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete()
-                      .getAsMention())
-              )
-              .queue();
-        }
-        case "t2" -> {
-          e.reply("User will be asked to choose any one T1 or T2 reward").setEphemeral(true)
-              .queue();
-          var ticket = ticketRepository.getTicketByChannel(e.getChannel().getIdLong());
-          e.getChannel()
-              .asTextChannel()
-              .sendMessage("%s, you may choose any one reward from **T1 or T2 Bug Report Rewards**"
-                  .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete()
-                      .getAsMention())
-              )
-              .queue();
-        }
-        case "t3" -> {
-          e.reply("User will be asked to choose any one reward").setEphemeral(true).queue();
-          var ticket = ticketRepository.getTicketByChannel(e.getChannel().getIdLong());
-          e.getChannel()
-              .asTextChannel()
-              .sendMessage(
-                  "%s, you may choose any one reward from **T1, T2 or T3 Bug Report Rewards**"
-                      .formatted(e.getGuild().retrieveMemberById(ticket.getCreator()).complete()
-                          .getAsMention())
-              )
-              .queue();
-        }
+      if ("none".equals(selected)) {
+        e.reply("No reward will be given out.").setEphemeral(true).queue();
+        e.getChannel().asTextChannel().sendMessage("No reward will be given out.").queue();
+        return;
       }
+
+      try {
+        var tierId = UUID.fromString(selected);
+        var tierOpt = rewardTierRepository.findById(tierId);
+
+        if (tierOpt.isEmpty()) {
+          e.reply("Unknown reward tier, might've been deleted!").setEphemeral(true).queue();
+          return;
+        }
+
+        var tier = tierOpt.get();
+        var ticket = ticketRepository.getTicketByChannel(e.getChannel().getIdLong());
+        var userId = ticket.getCreator();
+        var user = e.getGuild().retrieveMemberById(userId).complete();
+
+        var rewards = tier.getRewards();
+
+        if (rewards.isEmpty()) {
+          e.reply("No rewards available for this tier!").setEphemeral(true).queue();
+          return;
+        }
+
+        var menu = StringSelectMenu.create("choosereward_%s".formatted(userId))
+            .setPlaceholder("Choose a Reward").addOption("None", "none");
+
+        for (var reward : rewards) {
+          menu.addOption(reward.getName(), reward.getId().toString());
+        }
+
+        e.getChannel().asTextChannel()
+            .sendMessage("%s\nPlease choose a reward.".formatted(user.getAsMention()))
+            .addActionRow(menu.build()).queue();
+
+      } catch (Exception ex) {
+        log.error("Error in handleTicketResolveBug", ex);
+        e.reply("An error occurred while processing the reward tier selection.").setEphemeral(true).queue();
+      }
+    }
+  }
+
+  private void handleChooseReward(StringSelectInteractionEvent e) {
+    var cid = e.getComponentId();
+    var userId = cid.substring(cid.lastIndexOf('_') + 1);
+    var user = e.getGuild().retrieveMemberById(userId).complete();
+    if (e.getMember() != user) {
+      e.reply("You are not permitted to choose a reward for this report!").setEphemeral(true).queue();
+      return;
+    }
+    var selected = e.getSelectedOptions().get(0).getValue();
+    var reward = rewardRepository.findById(UUID.fromString(selected)).orElse(null);
+    if (reward == null) {
+      e.reply("Unknown reward, might've been deleted!").setEphemeral(true).queue();
+      return;
+    }
+    e.reply("You chose the reward **%s**".formatted(reward.getName())).setEphemeral(true).queue();
+    e.getChannel().asTextChannel().sendMessage("Reward **%s** was chosen!".formatted(reward.getName()));
+  }
+
+  private void handleCreateReward(StringSelectInteractionEvent e) {
+    var guild = e.getGuild();
+    var g = guildRepository.findById(guild.getIdLong()).orElse(new Guild());
+    var member = e.getMember();
+    var rewardId = UUID.fromString(e.getComponentId().substring(e.getComponentId().lastIndexOf('_') + 1));
+    var rewardTierId = UUID.fromString(e.getSelectedOptions().get(0).getValue());
+
+    var reward = rewardRepository.findById(rewardId);
+    var rewardTier = rewardTierRepository.findById(rewardTierId);
+
+    reward.ifPresent(r -> r.setTier(rewardTier.get()));
+    e.reply("Reward created!").setEphemeral(true).queue();
+
+    if (g.getLog() != null) {
+      messageUtil.sendLogMessage(
+          "Command `%s` executed by `%s (%s)`\nCREATE BUG REWARD\n`%s` (Tier `%s`)".formatted(
+              "/reward tier create",
+              member.getEffectiveName(),
+              member.getIdLong(),
+              reward.get().getName(),
+              rewardTier.get().getName()
+          ), guild.getTextChannelById(g.getLog()));
     }
   }
 }
