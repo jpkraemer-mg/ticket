@@ -280,6 +280,8 @@ public class SelectMenuService {
     var rewardId = UUID.fromString(e.getComponentId().substring(e.getComponentId().lastIndexOf('_') + 1));
     var rewardTierId = UUID.fromString(e.getSelectedOptions().get(0).getValue());
 
+    log.info("Create Reward {}", rewardId);
+
     var reward = rewardRepository.findById(rewardId);
     var rewardTier = rewardTierRepository.findById(rewardTierId);
 
