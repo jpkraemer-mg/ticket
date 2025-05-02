@@ -5,11 +5,11 @@ plugins {
 }
 
 group = 'quest.darkoro'
-version = '0.23.1'
+version = '0.24.0'
 
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 sourceSets {
