@@ -283,7 +283,10 @@ public class SelectMenuService {
     var reward = rewardRepository.findById(rewardId);
     var rewardTier = rewardTierRepository.findById(rewardTierId);
 
-    reward.ifPresent(r -> r.setTier(rewardTier.get()));
+    reward.ifPresent(r -> {
+      log.info("Creating reward {} for guild {}", r.getName(), guild.getIdLong());
+      r.setTier(rewardTier.get());
+    });
     e.reply("Reward created!").setEphemeral(true).queue();
 
     if (g.getLog() != null) {
