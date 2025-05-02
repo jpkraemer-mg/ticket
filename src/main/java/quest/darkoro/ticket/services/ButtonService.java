@@ -50,7 +50,7 @@ public class ButtonService {
     }
   }
 
-  public void configureSelfroleRoleId(ButtonInteractionEvent e) {
+  private void configureSelfroleRoleId(ButtonInteractionEvent e) {
     if (!e.getGuild().getSelfMember().canInteract(e.getMember())) {
       e.reply(
               "I can't add or remove this role from you!\nThis most likely is because you have a higher role than me!")
@@ -73,7 +73,7 @@ public class ButtonService {
         ? "added" : "removed") + "!").setEphemeral(true).queue();
   }
 
-  public void handleTicketClose(ButtonInteractionEvent e) {
+  private void handleTicketClose(ButtonInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
@@ -104,7 +104,7 @@ public class ButtonService {
     }
   }
 
-  public void handleTicketDelete(ButtonInteractionEvent e) {
+  private void handleTicketDelete(ButtonInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);
@@ -130,7 +130,7 @@ public class ButtonService {
     }
   }
 
-  public void handleResolveTicket(ButtonInteractionEvent e) {
+  private void handleResolveTicket(ButtonInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
     var isPermitted = permissionUtil.isPermitted(e, gid, member);

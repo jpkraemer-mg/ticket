@@ -33,7 +33,7 @@ public class ModalService {
     }
   }
 
-  public void handleTicketCreate(ModalInteractionEvent e) {
+  private void handleTicketCreate(ModalInteractionEvent e) {
     e.deferReply(true).queue();
 
     var selected = e.getModalId().substring(e.getModalId().lastIndexOf("_") + 1).toUpperCase();
