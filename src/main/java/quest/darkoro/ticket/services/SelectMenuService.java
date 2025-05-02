@@ -248,6 +248,9 @@ public class SelectMenuService {
             .sendMessage("%s\nPlease choose a reward.".formatted(user.getAsMention()))
             .addActionRow(menu.build()).queue();
 
+        e.reply("Reward tier to be given: `%s`".formatted(tier.getName())).setEphemeral(true).queue();
+        e.getMessage().delete().queue();
+
       } catch (Exception ex) {
         log.error("Error in handleTicketResolveBug", ex);
         e.reply("An error occurred while processing the reward tier selection.").setEphemeral(true).queue();
@@ -289,6 +292,11 @@ public class SelectMenuService {
       return;
     }
     var selected = e.getSelectedOptions().get(0).getValue();
+    if ("none".equals(selected)) {
+      e.reply("You will not get a reward for this report.").setEphemeral(true).queue();
+      e.getChannel().asTextChannel().sendMessage("The user chose not to get a reward.").queue();
+      return;
+    }
     var reward = rewardRepository.findById(UUID.fromString(selected)).orElse(null);
     if (reward == null) {
       e.reply("Unknown reward, might've been deleted!").setEphemeral(true).queue();
@@ -296,5 +304,6 @@ public class SelectMenuService {
     }
     e.reply("You chose the reward **%s**".formatted(reward.getName())).setEphemeral(true).queue();
     e.getChannel().asTextChannel().sendMessage("Reward **%s** was chosen!".formatted(reward.getName()));
+    e.getMessage().delete().queue();
   }
 }
