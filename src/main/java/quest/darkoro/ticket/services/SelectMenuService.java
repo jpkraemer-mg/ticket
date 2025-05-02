@@ -230,7 +230,7 @@ public class SelectMenuService {
         var userId = ticket.getCreator();
         var user = e.getGuild().retrieveMemberById(userId).complete();
 
-        var rewards = tier.getRewards();
+        var rewards = rewardRepository.findByTier(tier);
 
         if (rewards.isEmpty()) {
           e.reply("No rewards available for this tier!").setEphemeral(true).queue();
