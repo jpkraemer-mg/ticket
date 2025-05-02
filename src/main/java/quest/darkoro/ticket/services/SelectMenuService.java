@@ -44,7 +44,7 @@ public class SelectMenuService {
         case "ticket_select" -> handleTicketCreate(ev);
         case "resolve_bug" -> handleTicketResolveBug(ev);
         case String s when s.startsWith("createreward_") -> handleCreateReward(ev);
-        case String s when s.startsWith("choosereward_") -> handleCreateReward(ev);
+        case String s when s.startsWith("choosereward_") -> handleChooseReward(ev);
         default -> e.reply("Unknown StringSelectInteractionEvent: %s".formatted(e.getComponentId()))
             .setEphemeral(true).queue();
       }
@@ -255,24 +255,6 @@ public class SelectMenuService {
     }
   }
 
-  private void handleChooseReward(StringSelectInteractionEvent e) {
-    var cid = e.getComponentId();
-    var userId = cid.substring(cid.lastIndexOf('_') + 1);
-    var user = e.getGuild().retrieveMemberById(userId).complete();
-    if (e.getMember() != user) {
-      e.reply("You are not permitted to choose a reward for this report!").setEphemeral(true).queue();
-      return;
-    }
-    var selected = e.getSelectedOptions().get(0).getValue();
-    var reward = rewardRepository.findById(UUID.fromString(selected)).orElse(null);
-    if (reward == null) {
-      e.reply("Unknown reward, might've been deleted!").setEphemeral(true).queue();
-      return;
-    }
-    e.reply("You chose the reward **%s**".formatted(reward.getName())).setEphemeral(true).queue();
-    e.getChannel().asTextChannel().sendMessage("Reward **%s** was chosen!".formatted(reward.getName()));
-  }
-
   private void handleCreateReward(StringSelectInteractionEvent e) {
     var guild = e.getGuild();
     var g = guildRepository.findById(guild.getIdLong()).orElse(new Guild());
@@ -296,5 +278,23 @@ public class SelectMenuService {
               rewardTier.get().getName()
           ), guild.getTextChannelById(g.getLog()));
     }
+  }
+
+  private void handleChooseReward(StringSelectInteractionEvent e) {
+    var cid = e.getComponentId();
+    var userId = cid.substring(cid.lastIndexOf('_') + 1);
+    var user = e.getGuild().retrieveMemberById(userId).complete();
+    if (e.getMember() != user) {
+      e.reply("You are not permitted to choose a reward for this report!").setEphemeral(true).queue();
+      return;
+    }
+    var selected = e.getSelectedOptions().get(0).getValue();
+    var reward = rewardRepository.findById(UUID.fromString(selected)).orElse(null);
+    if (reward == null) {
+      e.reply("Unknown reward, might've been deleted!").setEphemeral(true).queue();
+      return;
+    }
+    e.reply("You chose the reward **%s**".formatted(reward.getName())).setEphemeral(true).queue();
+    e.getChannel().asTextChannel().sendMessage("Reward **%s** was chosen!".formatted(reward.getName()));
   }
 }
