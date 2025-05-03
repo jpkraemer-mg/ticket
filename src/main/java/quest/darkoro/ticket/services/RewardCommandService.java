@@ -25,12 +25,16 @@ public class RewardCommandService extends ListenerAdapter {
   private final MessageUtil messageUtil;
 
   public void handleCreateRewardTier(SlashCommandInteractionEvent e) {
-    var guild = e.getGuild();
+    var gid = e.getGuild().getIdLong();
     var member = e.getMember();
-    var g = guildRepository.findById(guild.getIdLong()).orElse(new Guild());
+    var g = guildRepository.findById(gid).orElse(new Guild());
 
     var name = e.getOption("name").getAsString();
-    rewardTierRepository.save(new RewardTier().setName(name).setGuildId(guild.getIdLong()));
+    if (rewardTierRepository.findByNameAndGuildId(name, gid).isPresent()) {
+      e.reply("A reward tier with this name already exists!").setEphemeral(true).queue();
+      return;
+    }
+    rewardTierRepository.save(new RewardTier().setName(name).setGuildId(gid));
 
     e.reply("Reward tier created: `%s`".formatted(name)).setEphemeral(true).queue();
     if (g.getLog() != null) {
@@ -40,7 +44,7 @@ public class RewardCommandService extends ListenerAdapter {
               member.getEffectiveName(),
               member.getIdLong(),
               name
-      ), guild.getTextChannelById(g.getLog()));
+      ), e.getGuild().getTextChannelById(g.getLog()));
     }
   }
 
@@ -53,6 +57,10 @@ public class RewardCommandService extends ListenerAdapter {
     }
 
     var name = e.getOption("name").getAsString();
+    if (rewardRepository.findByNameAndGuildId(name, gid).isPresent()) {
+      e.reply("A reward with this name already exists!").setEphemeral(true).queue();
+      return;
+    }
     var tempReward = rewardRepository.save(new Reward().setName(name).setGuildId(gid));
     var menu = StringSelectMenu.create("createreward_%s".formatted(tempReward.getId()))
         .setPlaceholder("Choose a Reward Tier");

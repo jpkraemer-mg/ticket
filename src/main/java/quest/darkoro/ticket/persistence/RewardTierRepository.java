@@ -1,6 +1,7 @@
 package quest.darkoro.ticket.persistence;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,4 +11,6 @@ import quest.darkoro.ticket.persistence.model.RewardTier;
 public interface RewardTierRepository extends JpaRepository<RewardTier, UUID> {
 
   List<RewardTier> findByGuildId(Long guildId);
+
+  Optional<RewardTier> findByNameAndGuildId(String name, Long guildId);
 }
