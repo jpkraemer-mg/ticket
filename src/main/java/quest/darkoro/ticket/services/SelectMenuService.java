@@ -43,6 +43,8 @@ public class SelectMenuService {
       switch (e.getComponentId()) {
         case "ticket_select" -> handleTicketCreate(ev);
         case "resolve_bug" -> handleTicketResolveBug(ev);
+        case "deletechoosetier" -> handleDeleteRewardChooseTier(ev);
+        case "deletereward" -> handleDeleteReward(ev);
         case String s when s.startsWith("createreward_") -> handleCreateReward(ev);
         case String s when s.startsWith("choosereward_") -> handleChooseReward(ev);
         default -> e.reply("Unknown StringSelectInteractionEvent: %s".formatted(e.getComponentId()))
@@ -291,19 +293,60 @@ public class SelectMenuService {
       e.reply("You are not permitted to choose a reward for this report!").setEphemeral(true).queue();
       return;
     }
+
     var selected = e.getSelectedOptions().get(0).getValue();
     if ("none".equals(selected)) {
       e.reply("You will not get a reward for this report.").setEphemeral(true).queue();
       e.getChannel().asTextChannel().sendMessage("The user chose not to get a reward.").queue();
       return;
     }
+
     var reward = rewardRepository.findById(UUID.fromString(selected)).orElse(null);
     if (reward == null) {
       e.reply("Unknown reward, might've been deleted!").setEphemeral(true).queue();
       return;
     }
+
     e.reply("You chose the reward **%s**".formatted(reward.getName())).setEphemeral(true).queue();
     e.getChannel().asTextChannel().sendMessage("Reward **%s** was chosen!".formatted(reward.getName()));
     e.getMessage().delete().queue();
+  }
+
+  private void handleDeleteRewardChooseTier(StringSelectInteractionEvent e) {
+    var rewardTierId = UUID.fromString(e.getSelectedOptions().get(0).getValue());
+
+    var menu = StringSelectMenu.create("deletereward")
+        .setPlaceholder("Which Reward do you want to delete?");
+
+    for (var reward : rewardRepository.findByTier(rewardTierRepository.findById(rewardTierId).get())) {
+      menu.addOption(reward.getName(), reward.getId().toString());
+    }
+
+    e.reply("").addActionRow(menu.build()).queue();
+  }
+
+  private void handleDeleteReward(StringSelectInteractionEvent e) {
+    var guild = e.getGuild();
+    var g = guildRepository.findById(guild.getIdLong()).orElse(new Guild());
+    var member = e.getMember();
+
+    var rewardId = UUID.fromString(e.getSelectedOptions().get(0).getValue());
+
+    var reward = rewardRepository.findById(rewardId);
+    var name = reward.get().getName();
+    var tier = reward.get().getTier().getName();
+    reward.ifPresent(rewardRepository::delete);
+
+    e.reply("Reward deleted!").setEphemeral(true).queue();
+    if (g.getLog() != null) {
+      messageUtil.sendLogMessage(
+          "Command `%s` executed by `%s (%s)`\nDELETE BUG REWARD\n`%s` (Tier `%s`)".formatted(
+              "/reward delete",
+              member.getEffectiveName(),
+              member.getIdLong(),
+              name,
+              tier
+          ), guild.getTextChannelById(g.getLog()));
+    }
   }
 }

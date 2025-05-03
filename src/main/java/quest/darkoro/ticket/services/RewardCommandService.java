@@ -45,28 +45,39 @@ public class RewardCommandService extends ListenerAdapter {
   }
 
   public void handleCreateReward(SlashCommandInteractionEvent e) {
-    if (rewardTierRepository.findByGuildId(e.getGuild().getIdLong()).isEmpty()) {
+    var gid = e.getGuild().getIdLong();
+    var tiers = rewardTierRepository.findByGuildId(gid);
+    if (tiers.isEmpty()) {
       e.reply("No reward tiers have been created yet!").setEphemeral(true).queue();
       return;
     }
-    var gid = e.getGuild().getIdLong();
+
     var name = e.getOption("name").getAsString();
-
     var tempReward = rewardRepository.save(new Reward().setName(name).setGuildId(gid));
-
     var menu = StringSelectMenu.create("createreward_%s".formatted(tempReward.getId()))
         .setPlaceholder("Choose a Reward Tier");
-    for (var tier : rewardTierRepository.findAll()) {
+
+    for (var tier : rewardTierRepository.findByGuildId(gid)) {
       menu.addOption(tier.getName(), tier.getId().toString());
     }
+
     e.reply("").addActionRow(menu.build()).setEphemeral(true).queue();
   }
 
   public void handleDeleteReward(SlashCommandInteractionEvent e) {
-    if (rewardTierRepository.findByGuildId(e.getGuild().getIdLong()).isEmpty()) {
+    var gid = e.getGuild().getIdLong();
+    var tiers = rewardTierRepository.findByGuildId(gid);
+    if (tiers.isEmpty()) {
       e.reply("No reward tiers have been created yet!").setEphemeral(true).queue();
       return;
     }
-    e.reply("Not yet implemented").setEphemeral(true).queue();
+
+    var menu = StringSelectMenu.create("deletechoosetier").setPlaceholder("What Reward Tier is the Reward in?");
+
+    for (var tier : tiers) {
+      menu.addOption(tier.getName(), tier.getId().toString());
+    }
+
+    e.reply("").addActionRow(menu.build()).setEphemeral(true).queue();
   }
 }
