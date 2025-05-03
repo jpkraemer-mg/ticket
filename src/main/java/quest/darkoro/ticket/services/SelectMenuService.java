@@ -322,7 +322,13 @@ public class SelectMenuService {
       menu.addOption(reward.getName(), reward.getId().toString());
     }
 
-    e.reply("").addActionRow(menu.build()).queue();
+    if (menu.getOptions().isEmpty()) {
+      e.reply("No rewards available for this tier!").setEphemeral(true).queue();
+      return;
+    }
+
+    e.reply("").addActionRow(menu.build()).setEphemeral(true).queue();
+    e.getMessage().delete().queue();
   }
 
   private void handleDeleteReward(StringSelectInteractionEvent e) {
@@ -338,6 +344,7 @@ public class SelectMenuService {
     reward.ifPresent(rewardRepository::delete);
 
     e.reply("Reward deleted!").setEphemeral(true).queue();
+    e.getMessage().delete().queue();
     if (g.getLog() != null) {
       messageUtil.sendLogMessage(
           "Command `%s` executed by `%s (%s)`\nDELETE BUG REWARD\n`%s` (Tier `%s`)".formatted(
