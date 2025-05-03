@@ -1,5 +1,6 @@
 package quest.darkoro.ticket.persistence;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,4 +15,6 @@ public interface RewardRepository extends JpaRepository<Reward, UUID> {
   List<Reward> findByTier(RewardTier tier);
 
   Optional<Reward> findByNameAndGuildId(String name, Long guildId);
+
+  List<Reward> findByTierIsNullAndCreatedAtBefore(LocalDateTime createdAt);
 }
