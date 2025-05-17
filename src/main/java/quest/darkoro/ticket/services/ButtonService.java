@@ -157,13 +157,15 @@ public class ButtonService {
 
     if (categoryRepository.findByGuildId(gid).isEmpty()) {
       e.reply(
-              "You must set up at least one ticket category.\nUse `/configure category add` for this.")
+          "You must set up at least one ticket category.\nUse `/configure category add` for this.")
           .setEphemeral(true).queue();
       return;
     }
     var builder = StringSelectMenu.create("ticket_select").setPlaceholder("Select ticket category");
-    categoryRepository.findByGuildId(gid).forEach(c ->
-        builder.addOption(c.getName().toUpperCase(), c.getName(), c.getDescription())
+    categoryRepository.findByGuildId(gid)
+        .stream()
+        .filter(c -> !c.getName().toLowerCase().contains("archive"))
+        .forEach(c -> builder.addOption(c.getName().toUpperCase(), c.getName(), c.getDescription())
     );
     var menu = builder.build();
     e.reply("").addActionRow(menu).setEphemeral(true).queue();
