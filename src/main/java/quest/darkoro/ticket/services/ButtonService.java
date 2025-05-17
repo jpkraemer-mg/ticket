@@ -166,9 +166,13 @@ public class ButtonService {
         .stream()
         .filter(c -> !c.getName().toLowerCase().contains("archive"))
         .filter(c -> e.getGuild().getCategoryById(c.getId()) != null)
-        .filter(c -> e.getGuild().getCategoryById(c.getId()).getChannels().size() < 2)
+        .filter(c -> e.getGuild().getCategoryById(c.getId()).getChannels().size() < 47)
         .forEach(c -> builder.addOption(c.getName().toUpperCase(), c.getName(), c.getDescription())
     );
+    if (builder.getOptions().isEmpty()) {
+      e.reply("There are no ticket categories available with enough space to open a ticket at the moment!\nPlease ping an admin to inform them!").setEphemeral(true).queue();
+      return;
+    }
     var menu = builder.build();
     e.reply("").addActionRow(menu).setEphemeral(true).queue();
   }

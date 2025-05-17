@@ -1,18 +1,23 @@
 package quest.darkoro.ticket.services;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.springframework.stereotype.Service;
+import quest.darkoro.ticket.persistence.GuildRepository;
+import quest.darkoro.ticket.persistence.model.Guild;
 import quest.darkoro.ticket.persistence.model.Ticket;
 import quest.darkoro.ticket.persistence.CategoryRepository;
 import quest.darkoro.ticket.persistence.TicketRepository;
 import quest.darkoro.ticket.util.DataUtil;
+import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
 @Slf4j
@@ -24,6 +29,8 @@ public class ModalService {
   private final CategoryRepository categoryRepository;
   private final PermissionUtil permissionUtil;
   private final TicketRepository ticketRepository;
+  private final GuildRepository guildRepository;
+  private final MessageUtil messageUtil;
 
   public void distributeEvent(ModalInteractionEvent e) {
     if (e.getModalId().startsWith("ticket_create")) {
@@ -37,7 +44,6 @@ public class ModalService {
     e.deferReply(true).queue();
 
     var selected = e.getModalId().substring(e.getModalId().lastIndexOf("_") + 1).toUpperCase();
-
     var builder = new EmbedBuilder().setTitle(selected);
 
     e.getValues()
@@ -74,7 +80,6 @@ public class ModalService {
         });
 
     var embed = builder.build();
-
     var guild = e.getGuild();
 
     var cat = categoryRepository.findByNameAndGuildId(selected, guild.getIdLong());
@@ -114,5 +119,13 @@ public class ModalService {
         )
         .queue();
     e.getHook().sendMessage("Ticket created").queue();
+    var g = guildRepository.findById(guild.getIdLong()).orElse(new Guild());
+    if (category.getChannels().size() > 39 && g.getLog() != null) {
+      messageUtil.sendLogMessage(
+          "# CHANNEL LIMIT ALMOST REACHED FOR CATEGORY: `%s (%s)` ".formatted(
+              cat.getName(),
+              cat.getId()
+          ), guild.getTextChannelById(g.getLog()));
+    }
   }
 }
