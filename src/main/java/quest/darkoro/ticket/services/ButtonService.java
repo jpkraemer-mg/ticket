@@ -165,6 +165,8 @@ public class ButtonService {
     categoryRepository.findByGuildId(gid)
         .stream()
         .filter(c -> !c.getName().toLowerCase().contains("archive"))
+        .filter(c -> e.getGuild().getCategoryById(c.getId()) != null)
+        .filter(c -> e.getGuild().getCategoryById(c.getId()).getChannels().size() < 2)
         .forEach(c -> builder.addOption(c.getName().toUpperCase(), c.getName(), c.getDescription())
     );
     var menu = builder.build();
