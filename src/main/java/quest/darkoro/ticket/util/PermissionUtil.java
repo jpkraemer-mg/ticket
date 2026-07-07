@@ -14,14 +14,13 @@ import static net.dv8tion.jda.api.Permission.VIEW_CHANNEL;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import org.springframework.stereotype.Component;
 import quest.darkoro.ticket.persistence.AdministratorRepository;
 import quest.darkoro.ticket.persistence.CategoryRepository;
@@ -34,100 +33,31 @@ public class PermissionUtil {
   private final JDA bot;
   private final CategoryRepository categoryRepository;
 
-  public boolean isPermitted(SlashCommandInteractionEvent e, Long gid, Member member) {
-    boolean hasPermission = member.hasPermission(Permission.ADMINISTRATOR);
+  public boolean isPermitted(IReplyCallback e, Long gid, Member member) {
+    if (member.hasPermission(Permission.ADMINISTRATOR)) {
+      return true;
+    }
 
-    if (administratorRepository.getAllByGuildId(gid).isEmpty() && !hasPermission) {
+    var adminRoles = administratorRepository.getAllByGuildId(gid);
+    if (adminRoles.isEmpty()) {
       e.reply("You must be an administrator to use this command.").setEphemeral(true).queue();
-      return hasPermission;
+      return false;
     }
 
-    var adminRoles = administratorRepository.getAllByGuildId(gid);
-    StringBuilder sb = new StringBuilder();
+    var roles = adminRoles.stream()
+        .map(a -> e.getGuild().getRoleById(a.getRoleId()))
+        .filter(Objects::nonNull)
+        .toList();
 
-    if (!hasPermission) {
-      for (var adminRole : adminRoles) {
-        var role = e.getGuild().getRoleById(adminRole.getRoleId());
-        sb.append(role.getAsMention()).append("\n");
-        if (member.getRoles().contains(role)) {
-          hasPermission = true;
-          break;
-        }
-      }
+    if (roles.stream().anyMatch(member.getRoles()::contains)) {
+      return true;
     }
 
-    if (!hasPermission) {
-      e.reply("You must have one of the following roles or Administrator permission for this command:\n%s"
-              .formatted(sb))
-          .setEphemeral(true)
-          .queue();
-      return hasPermission;
-    }
-    return hasPermission;
-  }
-
-  public boolean isPermitted(ButtonInteractionEvent e, Long gid, Member member) {
-    boolean hasPermission = member.hasPermission(Permission.ADMINISTRATOR);
-
-    if (administratorRepository.getAllByGuildId(gid).isEmpty() && !hasPermission) {
-      e.reply("You must be an administrator to use this button.").setEphemeral(true).queue();
-      return hasPermission;
-    }
-
-    var adminRoles = administratorRepository.getAllByGuildId(gid);
-    StringBuilder sb = new StringBuilder();
-
-    if (!hasPermission) {
-      for (var adminRole : adminRoles) {
-        var role = e.getGuild().getRoleById(adminRole.getRoleId());
-        sb.append(role.getAsMention()).append("\n");
-        if (member.getRoles().contains(role)) {
-          hasPermission = true;
-          break;
-        }
-      }
-    }
-
-    if (!hasPermission) {
-      e.reply("You must have one of the following roles or Administrator permission for this button:\n%s"
-              .formatted(sb))
-          .setEphemeral(true)
-          .queue();
-      return hasPermission;
-    }
-    return hasPermission;
-  }
-
-  public boolean isPermitted(StringSelectInteractionEvent e, Long gid, Member member) {
-    boolean hasPermission = member.hasPermission(Permission.ADMINISTRATOR);
-
-    if (administratorRepository.getAllByGuildId(gid).isEmpty() && !hasPermission) {
-      e.reply("You must be an administrator to use this select menu.").setEphemeral(true).queue();
-      return hasPermission;
-    }
-
-    var adminRoles = administratorRepository.getAllByGuildId(gid);
-    StringBuilder sb = new StringBuilder();
-
-    if (!hasPermission) {
-      for (var adminRole : adminRoles) {
-        var role = e.getGuild().getRoleById(adminRole.getRoleId());
-        sb.append(role.getAsMention()).append("\n");
-        if (member.getRoles().contains(role)) {
-          hasPermission = true;
-          break;
-        }
-      }
-    }
-
-    if (!hasPermission) {
-      e.reply("You must have one of the following roles or Administrator permission for this select menu:\n%s"
-              .formatted(sb))
-          .setEphemeral(true)
-          .queue();
-      return hasPermission;
-    }
-    return hasPermission;
+    e.reply("You must have one of the following roles or Administrator permission for this command:\n%s"
+            .formatted(roles.stream().map(Role::getAsMention).collect(Collectors.joining("\n"))))
+        .setEphemeral(true)
+        .queue();
+    return false;
   }
 
   public EnumSet<Permission> getAllow() {
@@ -161,8 +91,6 @@ public class PermissionUtil {
   }
 
   public boolean validCategory(Long gid, Long cid) {
-    return bot.getGuildById(gid).getCategoryById(cid) == null ||
-        (bot.getGuildById(gid).getCategoryById(cid) != null &&
-            categoryRepository.findByGuildId(gid).stream().anyMatch(c -> c.getId().equals(cid)));
+    return categoryRepository.findByGuildId(gid).stream().anyMatch(c -> c.getId().equals(cid));
   }
 }

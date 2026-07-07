@@ -4,6 +4,7 @@ import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.DA
 import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.PRIMARY;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.MissingAccessException;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.springframework.stereotype.Service;
@@ -86,10 +88,9 @@ public class ButtonService {
       e
           .editMessage(e.getMessage().getContentRaw())
           .setEmbeds(e.getMessage().getEmbeds())
-          .setActionRow(
-              e.getMessage().getButtonById("close_ticket").asDisabled(),
-              e.getMessage().getButtonById("resolve_ticket").asDisabled()
-          )
+          .setComponents(ActionRow.of(
+              e.getMessage().getButtons().stream().map(Button::asDisabled).toList()
+          ))
           .queue();
       e.getChannel()
           .asTextChannel()
@@ -114,19 +115,12 @@ public class ButtonService {
       e.reply("Ticket will be deleted in 5 seconds.")
           .queue(c -> c.getInteraction().getChannel().delete().queueAfter(5, TimeUnit.SECONDS));
 
-      var guild = guildRepository.findById(gid).orElse(null);
-      if (guild != null) {
-        if (guild.getLog() != null) {
-          messageUtil.sendLogMessage(
-              "Ticket deleted - `%s (%s)`\nDeleted by `%s (%s)`".formatted(
-                  channel.getName(),
-                  channel.getIdLong(),
-                  member.getEffectiveName(),
-                  member.getIdLong()
-              ), e.getGuild().getTextChannelById(guild.getLog())
-          );
-        }
-      }
+      messageUtil.sendGuildLog(e.getGuild(),
+          "Ticket deleted - `%s (%s)`\nDeleted by `%s (%s)`".formatted(
+              channel.getName(),
+              channel.getIdLong(),
+              member.getEffectiveName(),
+              member.getIdLong()));
     }
   }
 
@@ -155,20 +149,22 @@ public class ButtonService {
   public void handleTicketCreate(ButtonInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
 
-    if (categoryRepository.findByGuildId(gid).isEmpty()) {
+    var categories = categoryRepository.findByGuildId(gid);
+    if (categories.isEmpty()) {
       e.reply(
           "You must set up at least one ticket category.\nUse `/configure category add` for this.")
           .setEphemeral(true).queue();
       return;
     }
     var builder = StringSelectMenu.create("ticket_select").setPlaceholder("Select ticket category");
-    categoryRepository.findByGuildId(gid)
-        .stream()
+    categories.stream()
         .filter(c -> !c.getName().toLowerCase().contains("archive"))
-        .filter(c -> e.getGuild().getCategoryById(c.getId()) != null)
-        .filter(c -> e.getGuild().getCategoryById(c.getId()).getChannels().size() < 47)
-        .forEach(c -> builder.addOption(c.getName().toUpperCase(), c.getName(), c.getDescription())
-    );
+        .forEach(c -> {
+          var category = e.getGuild().getCategoryById(c.getId());
+          if (category != null && category.getChannels().size() < 47) {
+            builder.addOption(c.getName().toUpperCase(), c.getName(), c.getDescription());
+          }
+        });
     if (builder.getOptions().isEmpty()) {
       e.reply("There are no ticket categories available with enough space to open a ticket at the moment!\nPlease ping an admin to inform them!").setEphemeral(true).queue();
       return;
@@ -181,57 +177,56 @@ public class ButtonService {
     var guild = e.getGuild();
     var gid = guild.getIdLong();
 
-    var transcriptExist = guildRepository.findById(gid).isPresent();
-    if (!transcriptExist) {
-      e.reply("No configuration available!\nSet one using `/configure transcript`")
+    var g = guildRepository.findById(gid).orElse(null);
+    if (g == null || g.getTranscript() == null) {
+      e.reply("No configuration available!\nSet one using `/configure channel transcript`")
           .setEphemeral(true).queue();
       return;
     }
 
-    TextChannel transcript;
-    var g = guildRepository.findById(gid).orElse(null);
-    if (g != null && g.getTranscript() != null) {
-      transcript = guild.getTextChannelById(guildRepository.findById(gid).get().getTranscript());
-      if (transcript == null) {
-        e.reply("Transcript channel not found!").setEphemeral(true).queue();
-        return;
-      }
-    } else {
+    TextChannel transcript = guild.getTextChannelById(g.getTranscript());
+    if (transcript == null) {
       e.reply("Transcript channel not found!").setEphemeral(true).queue();
       return;
     }
 
     var channel = e.getChannel().asTextChannel();
+    e.deferReply().queue();
 
-    try {
-      transcript.sendFiles(DiscordHtmlTranscripts.getInstance()
-              .createTranscript(channel,
-                  "transcript_%s.html".formatted(channel.getName().toLowerCase())))
-          .queue();
-    } catch (IOException ex) {
-      e.reply("Error while creating transcript from channel '%s'".formatted(channel.getName()))
-          .queue();
-      log.error("Error while creating transcript from channel '{}'", channel.getName(), ex);
-      return;
-    } catch (MissingAccessException ex) {
-      e.reply("Missing access to transcript channel '%s'"
-              .formatted(transcript.getName()))
-          .setEphemeral(true)
-          .queue();
-      log.error("Missing access to transcript channel '{}'", transcript.getName(), ex);
-      return;
-    }
-
-    e.reply("Transcript saved to %s!".formatted(transcript.getAsMention())).queue();
-    if (g.getLog() != null) {
-      messageUtil.sendLogMessage(
-          "Button `%s` executed by `%s (%s)`\nSAVE TRANSCRIPT: `%s (%s)`".formatted(
-              e.getButton().getLabel(),
-              e.getMember().getEffectiveName(),
-              e.getMember().getIdLong(),
-              channel.getName(),
-              channel.getIdLong()), e.getGuild().getTextChannelById(g.getLog())
-      );
-    }
+    CompletableFuture.runAsync(() -> {
+      try {
+        transcript.sendFiles(DiscordHtmlTranscripts.getInstance()
+                .createTranscript(channel,
+                    "transcript_%s.html".formatted(channel.getName().toLowerCase())))
+            .queue(m -> {
+              e.getHook().sendMessage("Transcript saved to %s!".formatted(transcript.getAsMention()))
+                  .queue();
+              messageUtil.sendGuildLog(e.getGuild(),
+                  "Button `%s` executed by `%s (%s)`\nSAVE TRANSCRIPT: `%s (%s)`".formatted(
+                      e.getButton().getLabel(),
+                      e.getMember().getEffectiveName(),
+                      e.getMember().getIdLong(),
+                      channel.getName(),
+                      channel.getIdLong()));
+            }, error -> {
+              log.error("Failed to upload transcript for channel '{}'", channel.getName(), error);
+              e.getHook().sendMessage("Failed to upload transcript to %s!"
+                  .formatted(transcript.getAsMention())).queue();
+            });
+      } catch (IOException ex) {
+        e.getHook().sendMessage("Error while creating transcript from channel '%s'"
+            .formatted(channel.getName())).queue();
+        log.error("Error while creating transcript from channel '{}'", channel.getName(), ex);
+      } catch (MissingAccessException ex) {
+        e.getHook().sendMessage("Missing access to transcript channel '%s'"
+            .formatted(transcript.getName())).queue();
+        log.error("Missing access to transcript channel '{}'", transcript.getName(), ex);
+      } catch (Exception ex) {
+        e.getHook().sendMessage("Unexpected error while creating transcript from channel '%s'"
+            .formatted(channel.getName())).queue();
+        log.error("Unexpected error while creating transcript from channel '{}'",
+            channel.getName(), ex);
+      }
+    });
   }
 }

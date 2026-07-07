@@ -163,9 +163,5 @@ public class CommandListener extends ListenerAdapter {
         e.reply("Unknown command!").setEphemeral(true).queue();
       }
     }
-    if (e.isAcknowledged()) {
-      return;
-    }
-    e.reply("Unknown (sub)command").setEphemeral(true).queue();
   }
 }

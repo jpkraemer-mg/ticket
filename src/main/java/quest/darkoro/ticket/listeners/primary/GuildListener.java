@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.interfaces.BaseCommand;
-import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 
 @Service
@@ -20,22 +19,12 @@ public class GuildListener extends ListenerAdapter {
 
   private final List<BaseCommand> commands;
   private final MessageUtil messageUtil;
-  private final GuildRepository guildRepository;
 
   @Override
   public void onGuildReady(@NotNull GuildReadyEvent e) {
     registerCommands(e.getGuild());
-    var guild = guildRepository.findById(e.getGuild().getIdLong());
-    if (guild.isPresent()) {
-      if (guild.get().getBase() != null) {
-        messageUtil.sendTicketMessage(e.getGuild().getTextChannelById(guild.get().getBase()),
-            e.getJDA());
-      }
-      if (guild.get().getRole() != null) {
-        messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guild.get().getRole()),
-            e.getJDA());
-      }
-    }
+    messageUtil.refreshTicketMessage(e.getGuild(), e.getJDA());
+    messageUtil.refreshRoleMessage(e.getGuild(), e.getJDA());
   }
 
   @Override

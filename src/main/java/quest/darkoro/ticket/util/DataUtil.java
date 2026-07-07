@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,10 +15,18 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class DataUtil {
 
+  private final RestTemplate restTemplate = createRestTemplate();
+
+  private static RestTemplate createRestTemplate() {
+    var factory = new SimpleClientHttpRequestFactory();
+    factory.setConnectTimeout(3000);
+    factory.setReadTimeout(3000);
+    return new RestTemplate(factory);
+  }
+
   public Map fetchProfile(String username) {
     String url = "https://api.mojang.com/users/profiles/minecraft/" + username;
     try {
-      RestTemplate restTemplate = new RestTemplate();
       ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
 
       if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {

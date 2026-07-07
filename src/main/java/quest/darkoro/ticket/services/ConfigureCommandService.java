@@ -4,7 +4,6 @@ import static net.dv8tion.jda.api.entities.channel.ChannelType.CATEGORY;
 import static net.dv8tion.jda.api.entities.channel.ChannelType.TEXT;
 import static net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu.SelectTarget.ROLE;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -17,10 +16,10 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.persistence.model.Category;
 import quest.darkoro.ticket.persistence.model.Guild;
-import quest.darkoro.ticket.persistence.AdministratorRepository;
 import quest.darkoro.ticket.persistence.CategoryRepository;
 import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
@@ -35,7 +34,6 @@ public class ConfigureCommandService {
   private final CategoryRepository categoryRepository;
   private final MessageUtil messageUtil;
   private final GuildRepository guildRepository;
-  private final AdministratorRepository administratorRepository;
 
   public void handleConfigureCategoryAdd(SlashCommandInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
@@ -57,8 +55,8 @@ public class ConfigureCommandService {
       roles = Stream.concat(roles.stream(), permissionUtil.getRoles(gid).stream()).distinct()
           .toList();
 
-      var cat = categoryRepository.findByNameAndGuildId(e.getOption("name").getAsString(), gid);
-      if (cat != null) {
+      if (categoryRepository.findByNameAndGuildId(e.getOption("name").getAsString(), gid)
+          .isPresent()) {
         e.reply("Category with that name already exists").setEphemeral(true).queue();
         return;
       }
@@ -74,34 +72,24 @@ public class ConfigureCommandService {
         category.addRolePermissionOverride(guild.getPublicRole().getIdLong(), null,
             permissionUtil.getDeny());
       }
-      var completeCategory = category.complete();
-
-      categoryRepository.save(new Category()
-          .setId(completeCategory.getIdLong())
-          .setDescription(e.getOption("description").getAsString())
-          .setGuildId(gid)
-          .setName(e.getOption("name").getAsString())
-          .setMentions(mentions)
-      );
       e.reply("Category added with roles\n%s".formatted(mentions)).setEphemeral(true).queue();
-      var g = guildRepository.findById(gid).orElse(null);
-      if (g != null) {
-        if (g.getBase() != null) {
-          messageUtil.sendTicketMessage(guild.getTextChannelById(g.getBase()), e.getJDA());
-        }
-        if (g.getLog() != null) {
-          messageUtil.sendLogMessage(
-              "Command `%s` executed by `%s (%s)`\nCATEGORY CREATE `%s (%s)`\n`%s`".formatted(
-                  "/configure category add",
-                  member.getEffectiveName(),
-                  member.getIdLong(),
-                  completeCategory.getName(),
-                  completeCategory.getIdLong(),
-                  !roles.isEmpty() ? roles.stream().map(Role::getName)
-                      .collect(Collectors.joining(", ")) : "No roles assigned to category"
-              ), guild.getTextChannelById(g.getLog()));
-        }
-      }
+      var assignedRoles = roles;
+      category.queue(completeCategory -> {
+        categoryRepository.save(new Category()
+            .setId(completeCategory.getIdLong())
+            .setDescription(e.getOption("description").getAsString())
+            .setGuildId(gid)
+            .setName(e.getOption("name").getAsString())
+            .setMentions(mentions)
+        );
+        messageUtil.refreshTicketMessage(guild, e.getJDA());
+        messageUtil.sendCommandLog(member, "/configure category add",
+            "CATEGORY CREATE `%s (%s)`\n`%s`".formatted(
+                completeCategory.getName(),
+                completeCategory.getIdLong(),
+                !assignedRoles.isEmpty() ? assignedRoles.stream().map(Role::getName)
+                    .collect(Collectors.joining(", ")) : "No roles assigned to category"));
+      }, error -> log.error("Failed to create category", error));
     }
   }
 
@@ -127,22 +115,9 @@ public class ConfigureCommandService {
       channel.delete().queue();
       categoryRepository.delete(category);
       e.reply("Category %s removed".formatted(name)).setEphemeral(true).queue();
-      var g = guildRepository.findById(gid).orElse(null);
-      if (g != null) {
-        if (g.getBase() != null) {
-          messageUtil.sendTicketMessage(e.getGuild().getTextChannelById(g.getBase()), e.getJDA());
-        }
-        if (g.getLog() != null) {
-          messageUtil.sendLogMessage(
-              "Command `%s` executed by `%s (%s)`\nCATEGORY REMOVE: `%s (%s)`".formatted(
-                  "/configure category remove",
-                  member.getEffectiveName(),
-                  member.getIdLong(),
-                  name,
-                  category.getId()), e.getGuild().getTextChannelById(g.getLog())
-          );
-        }
-      }
+      messageUtil.refreshTicketMessage(e.getGuild(), e.getJDA());
+      messageUtil.sendCommandLog(member, "/configure category remove",
+          "CATEGORY REMOVE: `%s (%s)`".formatted(name, category.getId()));
     }
   }
 
@@ -179,56 +154,49 @@ public class ConfigureCommandService {
       e.reply("The channel from which to self-assign roles has been set to %s".formatted(
           channel.getAsMention())).setEphemeral(true).queue();
       messageUtil.sendRoleMessage(channel.asTextChannel(), e.getJDA());
-      if (guild.getLog() != null) {
-        messageUtil.sendLogMessage(
-            "Command `%s` executed by `%s (%s)`\nCONFIGURE SELF-ASSIGNABLE ROLE CHANNEL: `%s (%s)`".formatted(
-                "/configure channel role",
-                member.getEffectiveName(),
-                member.getIdLong(),
-                channel.getName(),
-                channel.getId()), e.getGuild().getTextChannelById(guild.getLog())
-        );
-      }
+      messageUtil.sendCommandLog(member, "/configure channel role",
+          "CONFIGURE SELF-ASSIGNABLE ROLE CHANNEL: `%s (%s)`".formatted(
+              channel.getName(), channel.getId()));
     }
   }
 
   public void handleConfigureChannelSetup(SlashCommandInteractionEvent e) {
-    e.deferReply(true).queue();
-
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
-    var isPermitted = permissionUtil.isPermitted(e, gid, member);
 
-    if (isPermitted) {
-      var g = guildRepository.findById(gid).orElse(new Guild().setId(gid));
-      var setupCategory = e.getOption("category").getAsChannel();
-      if (setupCategory.getType() != CATEGORY) {
-        e.reply("You may only select a **category** type channel to use for setup!")
-            .setEphemeral(true).queue();
-        return;
-      }
-      var setupCat = setupCategory.asCategory();
-      var log = e.getGuild().createTextChannel("command-logging").setParent(setupCat);
-      var ticket = e.getGuild().createTextChannel("create-a-ticket").setParent(setupCat);
-      var transcript = e.getGuild().createTextChannel("ticket-transcripts").setParent(setupCat);
-      var selfRoles = e.getGuild().createTextChannel("self-assign-roles").setParent(setupCat);
-      List<Role> roles = new ArrayList<>();
-      administratorRepository.getAllByGuildId(gid)
-          .forEach(a -> roles.add(e.getGuild().getRoleById(a.getRoleId())));
-      List.of(log, ticket, transcript, selfRoles)
-          .forEach(c -> {
-            roles.forEach(
-                r -> c.addRolePermissionOverride(r.getIdLong(), permissionUtil.getAllow(), null)
-            );
-            c.addRolePermissionOverride(e.getGuild().getBotRole().getIdLong(),
-                permissionUtil.getBotPermissions(), null);
-            c.addRolePermissionOverride(e.getGuild().getPublicRole().getIdLong(), null,
-                permissionUtil.getDeny());
-          });
-      var logDone = log.complete();
-      var ticketDone = ticket.complete();
-      var transcriptDone = transcript.complete();
-      var selfRolesDone = selfRoles.complete();
+    if (!permissionUtil.isPermitted(e, gid, member)) {
+      return;
+    }
+    var setupCategory = e.getOption("category").getAsChannel();
+    if (setupCategory.getType() != CATEGORY) {
+      e.reply("You may only select a **category** type channel to use for setup!")
+          .setEphemeral(true).queue();
+      return;
+    }
+    e.deferReply(true).queue();
+
+    var g = guildRepository.findById(gid).orElse(new Guild().setId(gid));
+    var setupCat = setupCategory.asCategory();
+    var logging = e.getGuild().createTextChannel("command-logging").setParent(setupCat);
+    var ticket = e.getGuild().createTextChannel("create-a-ticket").setParent(setupCat);
+    var transcript = e.getGuild().createTextChannel("ticket-transcripts").setParent(setupCat);
+    var selfRoles = e.getGuild().createTextChannel("self-assign-roles").setParent(setupCat);
+    List<Role> roles = permissionUtil.getRoles(gid);
+    List.of(logging, ticket, transcript, selfRoles)
+        .forEach(c -> {
+          roles.forEach(
+              r -> c.addRolePermissionOverride(r.getIdLong(), permissionUtil.getAllow(), null)
+          );
+          c.addRolePermissionOverride(e.getGuild().getBotRole().getIdLong(),
+              permissionUtil.getBotPermissions(), null);
+          c.addRolePermissionOverride(e.getGuild().getPublicRole().getIdLong(), null,
+              permissionUtil.getDeny());
+        });
+    RestAction.allOf(logging, ticket, transcript, selfRoles).queue(channels -> {
+      var logDone = channels.get(0);
+      var ticketDone = channels.get(1);
+      var transcriptDone = channels.get(2);
+      var selfRolesDone = channels.get(3);
       guildRepository.save(g.setBase(ticketDone.getIdLong()).setLog(logDone.getIdLong()).setRole(
           selfRolesDone.getIdLong()).setTranscript(transcriptDone.getIdLong()));
       messageUtil.sendTicketMessage(ticketDone, e.getJDA());
@@ -237,7 +205,10 @@ public class ConfigureCommandService {
           "Channel setup executed by `%s (%s)`".formatted(member.getEffectiveName(),
               member.getIdLong()), logDone);
       e.getHook().sendMessage("Channel setup complete!").queue();
-    }
+    }, error -> {
+      log.error("Failed to create setup channels", error);
+      e.getHook().sendMessage("Failed to create the setup channels!").queue();
+    });
   }
 
   public void handleConfigureChannelTicket(SlashCommandInteractionEvent e) {
@@ -256,16 +227,9 @@ public class ConfigureCommandService {
       messageUtil.sendTicketMessage(channel.asTextChannel(), e.getJDA());
       e.reply("Tickets may now be created from %s".formatted(channel.getAsMention()))
           .setEphemeral(true).queue();
-      if (guild.getLog() != null) {
-        messageUtil.sendLogMessage(
-            "Command `%s` executed by `%s (%s)`\nCONFIGURE TICKET MESSAGE CHANNEL: `%s (%s)`".formatted(
-                "/configure channel transcript",
-                member.getEffectiveName(),
-                member.getIdLong(),
-                channel.getName(),
-                channel.getId()), e.getGuild().getTextChannelById(guild.getLog())
-        );
-      }
+      messageUtil.sendCommandLog(member, "/configure channel ticket",
+          "CONFIGURE TICKET MESSAGE CHANNEL: `%s (%s)`".formatted(
+              channel.getName(), channel.getId()));
     }
   }
 
@@ -284,16 +248,9 @@ public class ConfigureCommandService {
       guildRepository.save(guild.setId(gid).setTranscript(channel.getIdLong()));
       e.reply("Transcript channel set to %s".formatted(channel.getAsMention())).setEphemeral(true)
           .queue();
-      if (guild.getLog() != null) {
-        messageUtil.sendLogMessage(
-            "Command `%s` executed by `%s (%s)`\nCONFIGURE TRANSCRIPT CHANNEL: `%s (%s)`".formatted(
-                "/configure channel transcript",
-                member.getEffectiveName(),
-                member.getIdLong(),
-                channel.getName(),
-                channel.getId()), e.getGuild().getTextChannelById(guild.getLog())
-        );
-      }
+      messageUtil.sendCommandLog(member, "/configure channel transcript",
+          "CONFIGURE TRANSCRIPT CHANNEL: `%s (%s)`".formatted(
+              channel.getName(), channel.getId()));
     }
   }
 

@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.MissingAccessException;
@@ -34,6 +36,10 @@ public class MessageUtil {
   private final GuildRepository guildRepository;
 
   public void sendTicketMessage(TextChannel channel, JDA bot) {
+    if (channel == null) {
+      log.warn("Configured ticket channel no longer exists, skipping ticket message");
+      return;
+    }
     var embed = new EmbedBuilder()
         .setTitle("Support tickets")
         .setDescription(
@@ -70,6 +76,10 @@ public class MessageUtil {
   }
 
   public void sendRoleMessage(TextChannel channel, JDA bot) {
+    if (channel == null) {
+      log.warn("Configured selfrole channel no longer exists, skipping role message");
+      return;
+    }
     var roles = selfroleRepository.findByGuildId(channel.getGuild().getIdLong());
     var embed = new EmbedBuilder()
         .setTitle("Self-assignable roles")
@@ -118,7 +128,35 @@ public class MessageUtil {
   }
 
   public void sendLogMessage(String message, TextChannel channel) {
+    if (channel == null) {
+      log.warn("Configured log channel no longer exists, skipping log message: {}", message);
+      return;
+    }
     channel.sendMessage(message).queue();
+  }
+
+  public void sendGuildLog(Guild guild, String message) {
+    guildRepository.findById(guild.getIdLong())
+        .map(g -> g.getLog())
+        .ifPresent(logId -> sendLogMessage(message, guild.getTextChannelById(logId)));
+  }
+
+  public void sendCommandLog(Member member, String command, String details) {
+    sendGuildLog(member.getGuild(),
+        "Command `%s` executed by `%s (%s)`\n%s".formatted(
+            command, member.getEffectiveName(), member.getIdLong(), details));
+  }
+
+  public void refreshTicketMessage(Guild guild, JDA bot) {
+    guildRepository.findById(guild.getIdLong())
+        .map(g -> g.getBase())
+        .ifPresent(base -> sendTicketMessage(guild.getTextChannelById(base), bot));
+  }
+
+  public void refreshRoleMessage(Guild guild, JDA bot) {
+    guildRepository.findById(guild.getIdLong())
+        .map(g -> g.getRole())
+        .ifPresent(role -> sendRoleMessage(guild.getTextChannelById(role), bot));
   }
 
 }

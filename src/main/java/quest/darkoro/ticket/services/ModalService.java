@@ -1,18 +1,14 @@
 package quest.darkoro.ticket.services;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.persistence.GuildRepository;
-import quest.darkoro.ticket.persistence.model.Guild;
 import quest.darkoro.ticket.persistence.model.Ticket;
 import quest.darkoro.ticket.persistence.CategoryRepository;
 import quest.darkoro.ticket.persistence.TicketRepository;
@@ -29,7 +25,6 @@ public class ModalService {
   private final CategoryRepository categoryRepository;
   private final PermissionUtil permissionUtil;
   private final TicketRepository ticketRepository;
-  private final GuildRepository guildRepository;
   private final MessageUtil messageUtil;
 
   public void distributeEvent(ModalInteractionEvent e) {
@@ -82,50 +77,65 @@ public class ModalService {
     var embed = builder.build();
     var guild = e.getGuild();
 
-    var cat = categoryRepository.findByNameAndGuildId(selected, guild.getIdLong());
+    var cat = categoryRepository.findByNameAndGuildId(selected, guild.getIdLong()).orElse(null);
+    if (cat == null) {
+      e.getHook().sendMessage(
+          "The ticket category `%s` is no longer configured! Please inform an admin."
+              .formatted(selected)).queue();
+      return;
+    }
     var category = guild.getCategoryById(cat.getId());
-    var channel = guild.createTextChannel("%s".formatted(e.getValue("title").getAsString()),
+    if (category == null) {
+      e.getHook().sendMessage(
+          "The category for `%s` tickets no longer exists! Please inform an admin."
+              .formatted(selected)).queue();
+      return;
+    }
+    guild.createTextChannel("%s".formatted(e.getValue("title").getAsString()),
             category)
         .setParent(category)
         .syncPermissionOverrides()
         .addMemberPermissionOverride(e.getMember().getIdLong(), permissionUtil.getAllow(),
             permissionUtil.getDeny())
-        .complete();
+        .queue(channel -> {
+          ticketRepository.save(
+              new Ticket()
+                  .setCreator(e.getMember().getIdLong())
+                  .setTitle(e.getValue("title").getAsString())
+                  .setDescription(e.getValue("problem").getAsString())
+                  .setGuildId(guild.getIdLong())
+                  .setChannel(channel.getIdLong())
+          );
 
-    ticketRepository.save(
-        new Ticket()
-            .setCreator(e.getMember().getIdLong())
-            .setTitle(e.getValue("title").getAsString())
-            .setDescription(e.getValue("problem").getAsString())
-            .setGuildId(guild.getIdLong())
-            .setChannel(channel.getIdLong())
-    );
+          channel.sendMessage(
+                  ("""
+                      || %s ||
+                      %s, thank you for opening a ticket! We've been pinged and someone will respond soon.
+                      You can ping a member of staff if there's been no response for 48 hours.
 
-    channel.sendMessage(
-            ("""
-                || %s ||
-                %s, thank you for opening a ticket! We've been pinged and someone will respond soon.
-                You can ping a member of staff if there's been no response for 48 hours.
-                
-                Please submit any additional evidence you may have in case it might be needed to help you!
-                """)
-                .formatted(cat.getMentions(), e.getMember().getAsMention())
-        )
-        .addEmbeds(embed)
-        .addActionRow(
-            Button.of(ButtonStyle.DANGER, "close_ticket", "CLOSE",
-                Emoji.fromUnicode("\uD83D\uDD12")),
-            Button.of(ButtonStyle.PRIMARY, "resolve_ticket", "RESOLVE", Emoji.fromUnicode("✨"))
-        )
-        .queue();
-    e.getHook().sendMessage("Ticket created").queue();
-    var g = guildRepository.findById(guild.getIdLong()).orElse(new Guild());
-    if (category.getChannels().size() > 39 && g.getLog() != null) {
-      messageUtil.sendLogMessage(
-          "# CHANNEL LIMIT ALMOST REACHED FOR CATEGORY: `%s (%s)` ".formatted(
-              cat.getName(),
-              cat.getId()
-          ), guild.getTextChannelById(g.getLog()));
-    }
+                      Please submit any additional evidence you may have in case it might be needed to help you!
+                      """)
+                      .formatted(cat.getMentions(), e.getMember().getAsMention())
+              )
+              .addEmbeds(embed)
+              .addActionRow(
+                  Button.of(ButtonStyle.DANGER, "close_ticket", "CLOSE",
+                      Emoji.fromUnicode("🔒")),
+                  Button.of(ButtonStyle.PRIMARY, "resolve_ticket", "RESOLVE",
+                      Emoji.fromUnicode("✨"))
+              )
+              .queue();
+          e.getHook().sendMessage("Ticket created").queue();
+          if (category.getChannels().size() > 39) {
+            messageUtil.sendGuildLog(guild,
+                "# CHANNEL LIMIT ALMOST REACHED FOR CATEGORY: `%s (%s)` ".formatted(
+                    cat.getName(),
+                    cat.getId()));
+          }
+        }, error -> {
+          log.error("Failed to create ticket channel", error);
+          e.getHook().sendMessage("Failed to create the ticket channel, please inform an admin!")
+              .queue();
+        });
   }
 }

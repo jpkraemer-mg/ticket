@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.persistence.model.Administrator;
 import quest.darkoro.ticket.persistence.AdministratorRepository;
 import quest.darkoro.ticket.persistence.CategoryRepository;
-import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.util.MessageUtil;
 import quest.darkoro.ticket.util.PermissionUtil;
 
@@ -25,7 +24,6 @@ public class TicketCommandService {
 
   private final PermissionUtil permissionUtil;
   private final AdministratorRepository administratorRepository;
-  private final GuildRepository guildRepository;
   private final CategoryRepository categoryRepository;
   private final MessageUtil messageUtil;
 
@@ -46,27 +44,19 @@ public class TicketCommandService {
       e.reply("Role %s added to ticket admins.".formatted(role.getAsMention())).setEphemeral(true)
           .queue();
 
-      var guild = guildRepository.findById(gid).orElse(null);
       categoryRepository.findByGuildId(gid).forEach(c -> {
         var category = e.getGuild().getCategoryById(c.getId());
+        if (category == null) {
+          return;
+        }
         category.getTextChannels().forEach(t -> t.getManager()
             .putRolePermissionOverride(role.getIdLong(), permissionUtil.getAllow(),
                 permissionUtil.getFilteredDeny()).queue());
         category.getManager().putRolePermissionOverride(role.getIdLong(), permissionUtil.getAllow(),
             permissionUtil.getFilteredDeny()).queue();
       });
-      if (guild != null) {
-        if (guild.getLog() != null) {
-          messageUtil.sendLogMessage(
-              "Command `%s` executed by `%s (%s)`\nADD TICKET ADMIN\n`%s (%s)`".formatted(
-                  "/ticket admins add",
-                  member.getEffectiveName(),
-                  member.getIdLong(),
-                  role.getName(),
-                  role.getId()), e.getGuild().getTextChannelById(guild.getLog())
-          );
-        }
-      }
+      messageUtil.sendCommandLog(member, "/ticket admins add",
+          "ADD TICKET ADMIN\n`%s (%s)`".formatted(role.getName(), role.getId()));
     }
   }
 
@@ -86,25 +76,17 @@ public class TicketCommandService {
       e.reply("Role %s removed from ticket admins.".formatted(role.getAsMention()))
           .setEphemeral(true).queue();
 
-      var guild = guildRepository.findById(gid).orElse(null);
       categoryRepository.findByGuildId(gid).forEach(c -> {
         var category = e.getGuild().getCategoryById(c.getId());
+        if (category == null) {
+          return;
+        }
         category.getTextChannels()
             .forEach(t -> t.getManager().removePermissionOverride(role).queue());
         category.getManager().removePermissionOverride(role).queue();
       });
-      if (guild != null) {
-        if (guild.getLog() != null) {
-          messageUtil.sendLogMessage(
-              "Command `%s` executed by `%s (%s)`\nREMOVE TICKET ADMIN\n`%s (%s)`".formatted(
-                  "/ticket admins remove",
-                  member.getEffectiveName(),
-                  member.getIdLong(),
-                  role.getName(),
-                  role.getId()), e.getGuild().getTextChannelById(guild.getLog())
-          );
-        }
-      }
+      messageUtil.sendCommandLog(member, "/ticket admins remove",
+          "REMOVE TICKET ADMIN\n`%s (%s)`".formatted(role.getName(), role.getId()));
     }
   }
 
@@ -224,6 +206,10 @@ public class TicketCommandService {
         return;
       }
       var user = e.getOption("user").getAsMember();
+      if (user == null) {
+        e.reply("That user isn't a member of this server!").setEphemeral(true).queue();
+        return;
+      }
       if (user.equals(e.getGuild().getSelfMember())) {
         e.reply("Adding the bot user to a ticket is not supported!")
             .setEphemeral(true).queue();
@@ -255,6 +241,10 @@ public class TicketCommandService {
         return;
       }
       var user = e.getOption("user").getAsMember();
+      if (user == null) {
+        e.reply("That user isn't a member of this server!").setEphemeral(true).queue();
+        return;
+      }
       if (user.equals(e.getGuild().getSelfMember())) {
         e.reply("Removing the bot user from a ticket is not supported!")
             .setEphemeral(true).queue();

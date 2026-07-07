@@ -1,7 +1,6 @@
 package quest.darkoro.ticket.configuration;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.MESSAGE_CONTENT;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.MEMBER_OVERRIDES;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.ROLE_TAGS;
@@ -33,7 +32,7 @@ public class BotConfiguration {
   public JDA bot() {
     return JDABuilder.createDefault(token)
         .setChunkingFilter(ChunkingFilter.ALL)
-        .enableIntents(EnumSet.of(GUILD_MEMBERS, MESSAGE_CONTENT, GUILD_PRESENCES))
+        .enableIntents(EnumSet.of(GUILD_MEMBERS, MESSAGE_CONTENT))
         .enableCache(MEMBER_OVERRIDES, ROLE_TAGS)
         .setAutoReconnect(true)
         .setActivity(Activity.customStatus("Supporting BRs since 1999"))

@@ -17,9 +17,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.springframework.stereotype.Service;
 import quest.darkoro.ticket.persistence.RewardRepository;
 import quest.darkoro.ticket.persistence.RewardTierRepository;
-import quest.darkoro.ticket.persistence.model.Guild;
 import quest.darkoro.ticket.persistence.model.Selfrole;
-import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.persistence.SelfroleRepository;
 import quest.darkoro.ticket.persistence.TicketRepository;
 import quest.darkoro.ticket.util.MessageUtil;
@@ -31,7 +29,6 @@ import quest.darkoro.ticket.util.PermissionUtil;
 public class SelectMenuService {
 
   private final SelfroleRepository selfroleRepository;
-  private final GuildRepository guildRepository;
   private final MessageUtil messageUtil;
   private final PermissionUtil permissionUtil;
   private final TicketRepository ticketRepository;
@@ -71,16 +68,6 @@ public class SelectMenuService {
         .map(Selfrole::getRoleId)
         .collect(Collectors.toSet());
 
-    var roles = e.getValues()
-        .stream()
-        .filter(r -> r instanceof Role)
-        .map(r -> (Role) r)
-        .filter(r -> !r.isPublicRole())
-        .filter(r -> !existing.contains(r.getIdLong()))
-        .filter(r -> e.getGuild().getSelfMember().canInteract(r))
-        .map(Role::getName)
-        .toList();
-
     var added = e.getValues()
         .stream()
         .filter(r -> r instanceof Role)
@@ -88,29 +75,19 @@ public class SelectMenuService {
         .filter(r -> !r.isPublicRole())
         .filter(r -> !existing.contains(r.getIdLong()))
         .filter(r -> e.getGuild().getSelfMember().canInteract(r))
-        .peek(r -> selfroleRepository.save(
-            new Selfrole().setGuildId(gid).setRoleId(r.getIdLong()))
-        )
-        .map(Role::getAsMention)
         .toList();
 
+    selfroleRepository.saveAll(added.stream()
+        .map(r -> new Selfrole().setGuildId(gid).setRoleId(r.getIdLong()))
+        .toList());
+
     e.reply("Added the following roles to self-assignable roles:\n%s".formatted(
-        String.join("\n", added))).setEphemeral(true).queue();
-    var guild = guildRepository.findById(gid).orElse(null);
-    if (guild != null) {
-      if (guild.getRole() != null) {
-        messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guild.getRole()), e.getJDA());
-      }
-      if (guild.getLog() != null) {
-        messageUtil.sendLogMessage(
-            "Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) ADD `%s`".formatted(
-                "/configure selfrole add",
-                member.getEffectiveName(),
-                member.getIdLong(),
-                roles
-            ), e.getGuild().getTextChannelById(guild.getLog()));
-      }
-    }
+        added.stream().map(Role::getAsMention).collect(Collectors.joining("\n"))))
+        .setEphemeral(true).queue();
+    messageUtil.refreshRoleMessage(e.getGuild(), e.getJDA());
+    messageUtil.sendCommandLog(member, "/configure selfrole add",
+        "SELF-ASSIGNABLE ROLE(S) ADD `%s`".formatted(
+            added.stream().map(Role::getName).toList()));
   }
 
   private void handleConfigureSelfroleRemove(EntitySelectInteractionEvent e) {
@@ -122,16 +99,6 @@ public class SelectMenuService {
         .map(Selfrole::getRoleId)
         .collect(Collectors.toSet());
 
-    var roles = e.getValues()
-        .stream()
-        .filter(r -> r instanceof Role)
-        .map(r -> (Role) r)
-        .filter(r -> !r.isPublicRole())
-        .filter(r -> existing.contains(r.getIdLong()))
-        .filter(r -> e.getGuild().getSelfMember().canInteract(r))
-        .map(Role::getName)
-        .toList();
-
     var removed = e.getValues()
         .stream()
         .filter(r -> r instanceof Role)
@@ -139,27 +106,17 @@ public class SelectMenuService {
         .filter(r -> !r.isPublicRole())
         .filter(r -> existing.contains(r.getIdLong()))
         .filter(r -> e.getGuild().getSelfMember().canInteract(r))
-        .peek(r -> selfroleRepository.deleteByGuildIdAndRoleId(gid, r.getIdLong()))
-        .map(Role::getAsMention)
         .toList();
 
+    removed.forEach(r -> selfroleRepository.deleteByGuildIdAndRoleId(gid, r.getIdLong()));
+
     e.reply("Removed the following roles from self-assignable roles:\n%s".formatted(
-        String.join("\n", removed))).setEphemeral(true).queue();
-    var guild = guildRepository.findById(gid).orElse(null);
-    if (guild != null) {
-      if (guild.getRole() != null) {
-        messageUtil.sendRoleMessage(e.getGuild().getTextChannelById(guild.getRole()), e.getJDA());
-      }
-      if (guild.getLog() != null) {
-        messageUtil.sendLogMessage(
-            "Command `%s` executed by `%s (%s)`\nSELF-ASSIGNABLE ROLE(S) REMOVE `%s`".formatted(
-                "/configure selfrole remove",
-                member.getEffectiveName(),
-                member.getIdLong(),
-                roles
-            ), e.getGuild().getTextChannelById(guild.getLog()));
-      }
-    }
+        removed.stream().map(Role::getAsMention).collect(Collectors.joining("\n"))))
+        .setEphemeral(true).queue();
+    messageUtil.refreshRoleMessage(e.getGuild(), e.getJDA());
+    messageUtil.sendCommandLog(member, "/configure selfrole remove",
+        "SELF-ASSIGNABLE ROLE(S) REMOVE `%s`".formatted(
+            removed.stream().map(Role::getName).toList()));
   }
 
   private void handleTicketCreate(StringSelectInteractionEvent e) {
@@ -229,9 +186,13 @@ public class SelectMenuService {
 
         var tier = tierOpt.get();
         var ticket = ticketRepository.getTicketByChannel(e.getChannel().getIdLong());
-        var userId = ticket.getCreator();
-        var user = e.getGuild().retrieveMemberById(userId).complete();
 
+        if (ticket == null) {
+          e.reply("This channel doesn't seem to be a tracked ticket!").setEphemeral(true).queue();
+          return;
+        }
+
+        var userId = ticket.getCreator();
         var rewards = rewardRepository.findByTier(tier);
 
         if (rewards.isEmpty()) {
@@ -247,11 +208,10 @@ public class SelectMenuService {
         }
 
         e.getChannel().asTextChannel()
-            .sendMessage("%s\nPlease choose a reward.".formatted(user.getAsMention()))
+            .sendMessage("<@%s>\nPlease choose a reward.".formatted(userId))
             .addActionRow(menu.build()).queue();
 
         e.reply("Reward tier to be given: `%s`".formatted(tier.getName())).setEphemeral(true).queue();
-        e.getMessage().delete().queue();
 
       } catch (Exception ex) {
         log.error("Error in handleTicketResolveBug", ex);
@@ -261,35 +221,30 @@ public class SelectMenuService {
   }
 
   private void handleCreateReward(StringSelectInteractionEvent e) {
-    var guild = e.getGuild();
-    var g = guildRepository.findById(guild.getIdLong()).orElse(new Guild());
     var member = e.getMember();
     var rewardId = UUID.fromString(e.getComponentId().substring(e.getComponentId().lastIndexOf('_') + 1));
     var rewardTierId = UUID.fromString(e.getSelectedOptions().get(0).getValue());
 
-    var reward = rewardRepository.findById(rewardId);
-    var rewardTier = rewardTierRepository.findById(rewardTierId);
+    var reward = rewardRepository.findById(rewardId).orElse(null);
+    var rewardTier = rewardTierRepository.findById(rewardTierId).orElse(null);
 
-    reward.ifPresent(r -> rewardRepository.save(r.setTier(rewardTier.get())));
+    if (reward == null || rewardTier == null) {
+      e.reply("Reward or reward tier no longer exists, might've been deleted!")
+          .setEphemeral(true).queue();
+      return;
+    }
+
+    rewardRepository.save(reward.setTier(rewardTier));
     e.reply("Reward created!").setEphemeral(true).queue();
 
-    if (g.getLog() != null) {
-      messageUtil.sendLogMessage(
-          "Command `%s` executed by `%s (%s)`\nCREATE BUG REWARD\n`%s` (Tier `%s`)".formatted(
-              "/reward tier create",
-              member.getEffectiveName(),
-              member.getIdLong(),
-              reward.get().getName(),
-              rewardTier.get().getName()
-          ), guild.getTextChannelById(g.getLog()));
-    }
+    messageUtil.sendCommandLog(member, "/reward tier create",
+        "CREATE BUG REWARD\n`%s` (Tier `%s`)".formatted(reward.getName(), rewardTier.getName()));
   }
 
   private void handleChooseReward(StringSelectInteractionEvent e) {
     var cid = e.getComponentId();
     var userId = cid.substring(cid.lastIndexOf('_') + 1);
-    var user = e.getGuild().retrieveMemberById(userId).complete();
-    if (e.getMember() != user) {
+    if (!e.getUser().getId().equals(userId)) {
       e.reply("You are not permitted to choose a reward for this report!").setEphemeral(true).queue();
       return;
     }
@@ -308,17 +263,23 @@ public class SelectMenuService {
     }
 
     e.reply("You chose the reward **%s**".formatted(reward.getName())).setEphemeral(true).queue();
-    e.getChannel().asTextChannel().sendMessage("Reward **%s** was chosen!".formatted(reward.getName()));
+    e.getChannel().asTextChannel().sendMessage("Reward **%s** was chosen!".formatted(reward.getName())).queue();
     e.getMessage().delete().queue();
   }
 
   private void handleDeleteRewardChooseTier(StringSelectInteractionEvent e) {
     var rewardTierId = UUID.fromString(e.getSelectedOptions().get(0).getValue());
+    var tier = rewardTierRepository.findById(rewardTierId).orElse(null);
+
+    if (tier == null) {
+      e.reply("Unknown reward tier, might've been deleted!").setEphemeral(true).queue();
+      return;
+    }
 
     var menu = StringSelectMenu.create("deletereward")
         .setPlaceholder("Which Reward do you want to delete?");
 
-    for (var reward : rewardRepository.findByTier(rewardTierRepository.findById(rewardTierId).get())) {
+    for (var reward : rewardRepository.findByTier(tier)) {
       menu.addOption(reward.getName(), reward.getId().toString());
     }
 
@@ -332,28 +293,23 @@ public class SelectMenuService {
   }
 
   private void handleDeleteReward(StringSelectInteractionEvent e) {
-    var guild = e.getGuild();
-    var g = guildRepository.findById(guild.getIdLong()).orElse(new Guild());
     var member = e.getMember();
 
     var rewardId = UUID.fromString(e.getSelectedOptions().get(0).getValue());
+    var reward = rewardRepository.findById(rewardId).orElse(null);
 
-    var reward = rewardRepository.findById(rewardId);
-    var name = reward.get().getName();
-    var tier = reward.get().getTier().getName();
-    reward.ifPresent(rewardRepository::delete);
+    if (reward == null) {
+      e.reply("Unknown reward, might've been deleted!").setEphemeral(true).queue();
+      return;
+    }
+
+    var name = reward.getName();
+    var tier = reward.getTier() != null ? reward.getTier().getName() : "none";
+    rewardRepository.delete(reward);
 
     e.reply("Reward deleted!").setEphemeral(true).queue();
     e.getMessage().delete().queue();
-    if (g.getLog() != null) {
-      messageUtil.sendLogMessage(
-          "Command `%s` executed by `%s (%s)`\nDELETE BUG REWARD\n`%s` (Tier `%s`)".formatted(
-              "/reward delete",
-              member.getEffectiveName(),
-              member.getIdLong(),
-              name,
-              tier
-          ), guild.getTextChannelById(g.getLog()));
-    }
+    messageUtil.sendCommandLog(member, "/reward delete",
+        "DELETE BUG REWARD\n`%s` (Tier `%s`)".formatted(name, tier));
   }
 }

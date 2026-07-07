@@ -3,13 +3,10 @@ package quest.darkoro.ticket.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.springframework.stereotype.Service;
-import quest.darkoro.ticket.persistence.GuildRepository;
 import quest.darkoro.ticket.persistence.RewardRepository;
 import quest.darkoro.ticket.persistence.RewardTierRepository;
-import quest.darkoro.ticket.persistence.model.Guild;
 import quest.darkoro.ticket.persistence.model.Reward;
 import quest.darkoro.ticket.persistence.model.RewardTier;
 import quest.darkoro.ticket.util.MessageUtil;
@@ -17,17 +14,15 @@ import quest.darkoro.ticket.util.MessageUtil;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class RewardCommandService extends ListenerAdapter {
+public class RewardCommandService {
 
   private final RewardRepository rewardRepository;
   private final RewardTierRepository rewardTierRepository;
-  private final GuildRepository guildRepository;
   private final MessageUtil messageUtil;
 
   public void handleCreateRewardTier(SlashCommandInteractionEvent e) {
     var gid = e.getGuild().getIdLong();
     var member = e.getMember();
-    var g = guildRepository.findById(gid).orElse(new Guild());
 
     var name = e.getOption("name").getAsString();
     if (rewardTierRepository.findByNameAndGuildId(name, gid).isPresent()) {
@@ -37,15 +32,8 @@ public class RewardCommandService extends ListenerAdapter {
     rewardTierRepository.save(new RewardTier().setName(name).setGuildId(gid));
 
     e.reply("Reward tier created: `%s`".formatted(name)).setEphemeral(true).queue();
-    if (g.getLog() != null) {
-      messageUtil.sendLogMessage(
-          "Command `%s` executed by `%s (%s)`\nCREATE BUG REWARD TIER --> `%s`".formatted(
-              "/reward tier create",
-              member.getEffectiveName(),
-              member.getIdLong(),
-              name
-      ), e.getGuild().getTextChannelById(g.getLog()));
-    }
+    messageUtil.sendCommandLog(member, "/reward tier create",
+        "CREATE BUG REWARD TIER --> `%s`".formatted(name));
   }
 
   public void handleCreateReward(SlashCommandInteractionEvent e) {
